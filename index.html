@@ -236,7 +236,7 @@ a{color:#231B18}a:hover{color:#E5007A}
       <div class="yj-row" style="position: absolute; left: 0; top: {{rowTop}}px; width: 393px; overflow-x: auto;">
         <div style="display: flex; gap: 8px; padding: 0 16px; width: max-content; margin: {{trayMargin}};">
           <sc-for list="{{tray}}" as="it">
-            <button class="{{it.cls}}" aria-label="{{it.label}}" aria-pressed="{{it.pressed}}" onPointerDown="{{it.down}}" onClick="{{it.tap}}" onContextMenu="{{it.noMenu}}" style="animation-delay: {{it.delay}}ms; position: relative; width: 80px; display: flex; flex-direction: column; align-items: center; touch-action: pan-x; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none;">
+            <button class="{{it.cls}}" aria-label="{{it.label}}" aria-pressed="{{it.pressed}}" onPointerDown="{{it.down}}" onClick="{{it.tap}}" onContextMenu="{{it.noMenu}}" style="animation-delay: {{it.delay}}ms; position: relative; width: 80px; display: flex; flex-direction: column; align-items: center; touch-action: none; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none;">
               <sc-if value="{{it.shadow}}"><span aria-hidden="true" style="position: absolute; left: 24px; top: 60px; width: 45px; height: 27px; border-radius: 50%; background: #3F342E; opacity: 0.4; filter: blur(6px);"></span></sc-if>
               <img src="{{it.src}}" alt="" draggable="false" style="position: relative; width: {{it.iw}}px; height: {{it.ih}}px; object-fit: contain; pointer-events: none; filter: {{it.filt}};">
               <sc-if value="{{it.on}}"><span aria-hidden="true" style="position: absolute; top: 0; right: 4px; width: 20px; height: 20px; border-radius: 999px; background: var(--color-accent); border: 2px solid #FFFFFF; display: flex; align-items: center; justify-content: center;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span></sc-if>
@@ -393,6 +393,11 @@ function mount() {
   var next = document.createElement('div'); next.id = 'yj-host'; next.innerHTML = html;
   morphdom(host, next, { onBeforeElUpdated: function (from, to) { return !from.isEqualNode(to); } });
 }
+// 마우스 휠(윈도우): 토핑 줄 위에서는 세로 휠을 가로 넘기기로
+host.addEventListener('wheel', function (e) {
+  var row = e.target.closest && e.target.closest('.yj-row'); if (!row || row.scrollWidth <= row.clientWidth + 2) return;
+  if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) { row.scrollLeft += e.deltaY; e.preventDefault(); }
+}, { passive: false });
 ['click', 'pointerdown', 'contextmenu'].forEach(function (type) {
   host.addEventListener(type, function (e) {
     var el = e.target.closest('[data-on-' + type + ']'); if (!el || !host.contains(el)) return;
@@ -832,7 +837,9 @@ class Component extends DCLogic {
     var root = e.currentTarget.closest('[data-yj-root]');
     if (!root) return;
     var r = root.getBoundingClientRect();
-    this.d = { kind: kind, id: id, src: src, w: w, h: h, r: r, sc: (window.YJ_K || r.width / 393), x0: e.clientX, y0: e.clientY, moved: false };
+    var row = e.currentTarget.closest ? e.currentTarget.closest('.yj-row') : null;
+    this.d = { kind: kind, id: id, src: src, w: w, h: h, r: r, sc: (window.YJ_K || r.width / 393), x0: e.clientX, y0: e.clientY, moved: false, mode: null, row: row, sl: row ? row.scrollLeft : 0, lx: e.clientX, lt: Date.now(), vx: 0 };
+    if (this.inertia) { cancelAnimationFrame(this.inertia); this.inertia = 0; }
     this.unlisten();
     window.addEventListener('pointermove', this.onMove);
     window.addEventListener('pointerup', this.onUp);
@@ -842,7 +849,18 @@ class Component extends DCLogic {
   onMove(e) {
     var d = this.d;
     if (!d) return;
-    if (!d.moved && Math.abs(e.clientX - d.x0) + Math.abs(e.clientY - d.y0) < 10) return;
+    if (!d.mode) {
+      var mx = e.clientX - d.x0, my = e.clientY - d.y0;
+      if (Math.abs(mx) + Math.abs(my) < 8) return;
+      d.mode = (d.row && d.row.scrollWidth > d.row.clientWidth + 2 && Math.abs(mx) > Math.abs(my)) ? 'scroll' : 'drag';
+    }
+    if (d.mode === 'scroll') {                       // 손가락·마우스를 따라 줄을 직접 넘김
+      var now = Date.now(), k = d.sc || 1;
+      d.row.scrollLeft = d.sl - (e.clientX - d.x0) / k;
+      if (now > d.lt) { d.vx = 0.8 * d.vx + 0.2 * ((e.clientX - d.lx) / k) / (now - d.lt); }
+      d.lx = e.clientX; d.lt = now;
+      return;
+    }
     d.moved = true;
     var x = (e.clientX - d.r.left) / d.sc - (window.YJ_CX || 0);
     var y = (e.clientY - d.r.top) / d.sc;
@@ -853,6 +871,13 @@ class Component extends DCLogic {
     this.unlisten();
     var d = this.d;
     this.d = null;
+    if (d && d.mode === 'scroll') {                  // 놓으면 관성으로 조금 더 미끄러짐
+      this.suppress = Date.now();
+      var row = d.row, v = -d.vx * 16, self = this;
+      var step = function () { if (Math.abs(v) < 0.4) { self.inertia = 0; return; } row.scrollLeft += v; v *= 0.92; self.inertia = requestAnimationFrame(step); };
+      if (typeof requestAnimationFrame === 'function') this.inertia = requestAnimationFrame(step);
+      return;
+    }
     if (d && d.moved) {
       this.suppress = Date.now();
       var x = (e.clientX - d.r.left) / d.sc - (window.YJ_CX || 0);
