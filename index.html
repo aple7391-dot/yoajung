@@ -20,8 +20,24 @@
 <meta name="twitter:image" content="https://yoajung-ten.vercel.app/og.png">
 <style>
 html,body{margin:0;height:100%;background:#E9E6E2;overflow:hidden;-webkit-tap-highlight-color:transparent}
-#yj-viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
-#yj-stage{width:393px;height:716px;flex:none;transform-origin:center center}
+#yj-viewport{position:fixed;inset:0;display:flex;justify-content:center;background:#E9E6E2}
+#yj-stage{position:relative;flex:none;overflow:hidden;width:393px;height:716px}
+#yj-scale{position:absolute;left:0;top:0;transform-origin:0 0}
+#yj-host,#yj-host>[data-yj-root]{width:100%!important;height:100%!important}
+/* 반응형: 위쪽은 위에, 바텀시트~컵 키우기는 아래에 고정. 가운데 요소는 가로 가운데, 주문서는 오른쪽, 주문취소·가이드·타이틀은 왼쪽 */
+.yj-e-cloth,.yj-e-cup,[aria-label="투명 컵에 따로 담긴 토핑"],.yj-ghost{margin-left:var(--cx)}
+[aria-label="주문서 미리보기"]{left:auto!important;right:16px}
+.yj-e-sheet{left:0!important;width:100%!important;margin-top:var(--cy)}
+.yj-e-sheet>*{margin-left:var(--cx)}
+.yj-status{transform:translateY(var(--cy))}
+.yj-modal,.yj-paid,.yj-gingham{width:100%!important;height:100%!important}
+.yj-modal>.yj-sheet{margin-left:var(--cx)}
+.yj-paid>*{margin-left:var(--cx)}
+.yj-paid>.yj-paid-bottom{margin-top:var(--cy)}
+.yj-gingham>button[aria-label="주문 시작하기"],.yj-gingham>div[aria-hidden]{width:100%!important;height:100%!important}
+.yj-gingham>div[aria-hidden]>*{margin-left:var(--cx)}
+.yj-gingham>div[aria-hidden]>svg,.yj-gingham>div[aria-hidden]>img:not(.yj-pop){margin-top:calc(var(--cy) / 2)}
+.yj-gingham>div[aria-hidden]>.yj-stitch,.yj-gingham>div[aria-hidden]>.yj-note{margin-top:var(--cy)}
 button{border:0;background:none;font:inherit;color:inherit;padding:0;cursor:pointer}
 
 @font-face{font-family:"Pretendard Variable";src:url("assets/dde97d7c9cc6dfbb59ec7d4a3bb52826.woff2") format("woff2");font-weight:100 900;font-display:swap}
@@ -123,7 +139,7 @@ a{color:#231B18}a:hover{color:#E5007A}
 </style>
 </head>
 <body>
-<div id="yj-viewport"><div id="yj-stage"><div id="yj-host"></div></div></div>
+<div id="yj-viewport"><div id="yj-stage"><div id="yj-scale"><div id="yj-host"></div></div></div></div>
 <script type="text/x-yj-template" id="yj-template">
 
 <div data-yj-root="1" class="yj-floor {{rootCls}}" style="position: relative; width: 393px; height: 716px; overflow: hidden; font-family: 'Pretendard Variable', Pretendard, sans-serif; color: var(--color-text-primary); letter-spacing: -0.2px; user-select: none;">
@@ -197,7 +213,7 @@ a{color:#231B18}a:hover{color:#E5007A}
     </div>
   </sc-for>
 
-  <div style="position: absolute; z-index: 3; left: 0px; top: 392px; width: 361px; height: 32px; right: 0px; margin-left: auto; margin-right: auto;">
+  <div class="yj-status" style="position: absolute; z-index: 3; left: 0px; top: 392px; width: 361px; height: 32px; right: 0px; margin-left: auto; margin-right: auto;">
     <sc-if value="{{showToast}}">
       <div class="yj-toast" role="status" style="position: absolute; left: 0; top: {{toastOffset}}px; width: 361px; height: 32px; display: flex; justify-content: center;">
         <span style="height: 32px; padding: 0 16px; border-radius: 999px; background: var(--color-text-primary); color: #FFFFFF; display: flex; align-items: center; font-size: 13px; line-height: 16px; font-weight: 600; white-space: nowrap;">{{toastText}}</span>
@@ -262,11 +278,11 @@ a{color:#231B18}a:hover{color:#E5007A}
   </section>
 
   <sc-if value="{{dragging}}">
-    <img src="{{ghost.src}}" alt="" draggable="false" style="position: absolute; left: {{ghost.x}}px; top: {{ghost.y}}px; width: {{ghost.w}}px; height: {{ghost.h}}px; object-fit: contain; pointer-events: none; transform: translate(-50%, -50%) rotate({{ghost.rot}}deg); filter: drop-shadow(8px 14px 10px rgba(35,27,24,0.28)); z-index: 10;">
+    <img class="yj-ghost" src="{{ghost.src}}" alt="" draggable="false" style="position: absolute; left: {{ghost.x}}px; top: {{ghost.y}}px; width: {{ghost.w}}px; height: {{ghost.h}}px; object-fit: contain; pointer-events: none; transform: translate(-50%, -50%) rotate({{ghost.rot}}deg); filter: drop-shadow(8px 14px 10px rgba(35,27,24,0.28)); z-index: 10;">
   </sc-if>
 
   <sc-if value="{{hasModal}}">
-    <div class="yj-scrim" style="position: absolute; left: 0; top: 0; width: 393px; height: 716px; background: rgba(35,27,24,0.48); z-index: 20;">
+    <div class="yj-scrim yj-modal" style="position: absolute; left: 0; top: 0; width: 393px; height: 716px; background: rgba(35,27,24,0.48); z-index: 20;">
       <div class="yj-sheet" role="dialog" aria-modal="true" aria-labelledby="yj-modal-title" style="position: absolute; left: 16px; bottom: 16px; width: 361px; box-sizing: border-box; padding: 24px; border-radius: 24px; background: #FFFFFF;">
         <h2 id="yj-modal-title" style="margin: 0; font-size: 18px; line-height: 24px; font-weight: 800;">{{modal.title}}</h2>
         <sc-if value="{{modal.hasBody}}"><p style="margin: 8px 0 0; font-size: 14px; line-height: 20px; color: var(--color-text-secondary);">{{modal.body}}</p></sc-if>
@@ -290,7 +306,7 @@ a{color:#231B18}a:hover{color:#E5007A}
   </sc-if>
 
   <sc-if value="{{paid}}">
-    <div class="yj-scrim" style="position: absolute; left: 0; top: 0; width: 393px; height: 716px; background: var(--color-accent); z-index: 30;">
+    <div class="yj-scrim yj-paid" style="position: absolute; left: 0; top: 0; width: 393px; height: 716px; background: var(--color-accent); z-index: 30;">
       <img src="assets/4aaa7a9e782d7c2fef8269e132cfdbb0.svg" alt="요아정" style="position: absolute; left: 172px; top: 16px; width: 48px; height: 48px; object-fit: contain;">
       <article class="yj-print" style="position: absolute; left: 32px; top: 80px; width: 329px; box-sizing: border-box; padding: 20px 20px 24px; background: #FFFFFF; filter: drop-shadow(6px 10px 10px rgba(70,6,34,0.3)); display: flex; flex-direction: column; gap: 12px;">
         <div style="display: flex; align-items: baseline; justify-content: space-between; padding-bottom: 8px; border-bottom: 2px solid var(--color-accent);">
@@ -308,8 +324,8 @@ a{color:#231B18}a:hover{color:#E5007A}
         </div>
         <svg aria-hidden="true" width="329" height="8" viewBox="0 0 329 8" style="position: absolute; left: 0; bottom: -8px;"><path fill="#FFFFFF" d="M0 0H329L321 8L313 0L305 8L297 0L289 8L281 0L273 8L265 0L257 8L249 0L241 8L233 0L225 8L217 0L209 8L201 0L193 8L185 0L177 8L169 0L161 8L153 0L145 8L137 0L129 8L121 0L113 8L105 0L97 8L89 0L81 8L73 0L65 8L57 0L49 8L41 0L33 8L25 0L17 8L9 0L1 8L0 0Z"></path></svg>
       </article>
-      <p style="position: absolute; left: 16px; top: 580px; width: 361px; margin: 0; text-align: center; font-size: 32px; line-height: 40px; font-weight: 800; letter-spacing: -0.8px; color: #FFFFFF;">맛있게 드세요!</p>
-      <button onClick="{{restart}}" style="position: absolute; left: 16px; top: 644px; width: 361px; height: 48px; border-radius: 999px; background: #FFFFFF; color: var(--color-accent); font-size: 16px; line-height: 24px; font-weight: 700;">처음으로</button>
+      <p style="position: absolute; left: 16px; top: 580px; width: 361px; margin: 0; text-align: center; font-size: 32px; line-height: 40px; font-weight: 800; letter-spacing: -0.8px; color: #FFFFFF;" class="yj-paid-bottom">맛있게 드세요!</p>
+      <button class="yj-paid-bottom" onClick="{{restart}}" style="position: absolute; left: 16px; top: 644px; width: 361px; height: 48px; border-radius: 999px; background: #FFFFFF; color: var(--color-accent); font-size: 16px; line-height: 24px; font-weight: 700;">처음으로</button>
     </div>
   </sc-if>
 
@@ -321,6 +337,7 @@ a{color:#231B18}a:hover{color:#E5007A}
         <svg aria-hidden="true" width="320" height="320" viewBox="0 0 320 320" style="position: absolute; left: 36px; top: 278px; filter: drop-shadow(4px 8px 6px rgba(35,27,24,0.12));"><path d="M302.0 160.0 A14.6 14.6 0 0 1 299.3 187.7 A14.6 14.6 0 0 1 291.2 214.3 A14.6 14.6 0 0 1 278.1 238.9 A14.6 14.6 0 0 1 260.4 260.4 A14.6 14.6 0 0 1 238.9 278.1 A14.6 14.6 0 0 1 214.3 291.2 A14.6 14.6 0 0 1 187.7 299.3 A14.6 14.6 0 0 1 160.0 302.0 A14.6 14.6 0 0 1 132.3 299.3 A14.6 14.6 0 0 1 105.7 291.2 A14.6 14.6 0 0 1 81.1 278.1 A14.6 14.6 0 0 1 59.6 260.4 A14.6 14.6 0 0 1 41.9 238.9 A14.6 14.6 0 0 1 28.8 214.3 A14.6 14.6 0 0 1 20.7 187.7 A14.6 14.6 0 0 1 18.0 160.0 A14.6 14.6 0 0 1 20.7 132.3 A14.6 14.6 0 0 1 28.8 105.7 A14.6 14.6 0 0 1 41.9 81.1 A14.6 14.6 0 0 1 59.6 59.6 A14.6 14.6 0 0 1 81.1 41.9 A14.6 14.6 0 0 1 105.7 28.8 A14.6 14.6 0 0 1 132.3 20.7 A14.6 14.6 0 0 1 160.0 18.0 A14.6 14.6 0 0 1 187.7 20.7 A14.6 14.6 0 0 1 214.3 28.8 A14.6 14.6 0 0 1 238.9 41.9 A14.6 14.6 0 0 1 260.4 59.6 A14.6 14.6 0 0 1 278.1 81.1 A14.6 14.6 0 0 1 291.2 105.7 A14.6 14.6 0 0 1 299.3 132.3 A14.6 14.6 0 0 1 302.0 160.0 Z" fill="#FFFFFF"></path><circle cx="289.4" cy="172.7" r="3.4" fill="#FED6EA"></circle><circle cx="284.4" cy="197.7" r="3.4" fill="#FED6EA"></circle><circle cx="274.6" cy="221.3" r="3.4" fill="#FED6EA"></circle><circle cx="260.5" cy="242.5" r="3.4" fill="#FED6EA"></circle><circle cx="242.5" cy="260.5" r="3.4" fill="#FED6EA"></circle><circle cx="221.3" cy="274.6" r="3.4" fill="#FED6EA"></circle><circle cx="197.7" cy="284.4" r="3.4" fill="#FED6EA"></circle><circle cx="172.7" cy="289.4" r="3.4" fill="#FED6EA"></circle><circle cx="147.3" cy="289.4" r="3.4" fill="#FED6EA"></circle><circle cx="122.3" cy="284.4" r="3.4" fill="#FED6EA"></circle><circle cx="98.7" cy="274.6" r="3.4" fill="#FED6EA"></circle><circle cx="77.5" cy="260.5" r="3.4" fill="#FED6EA"></circle><circle cx="59.5" cy="242.5" r="3.4" fill="#FED6EA"></circle><circle cx="45.4" cy="221.3" r="3.4" fill="#FED6EA"></circle><circle cx="35.6" cy="197.7" r="3.4" fill="#FED6EA"></circle><circle cx="30.6" cy="172.7" r="3.4" fill="#FED6EA"></circle><circle cx="30.6" cy="147.3" r="3.4" fill="#FED6EA"></circle><circle cx="35.6" cy="122.3" r="3.4" fill="#FED6EA"></circle><circle cx="45.4" cy="98.7" r="3.4" fill="#FED6EA"></circle><circle cx="59.5" cy="77.5" r="3.4" fill="#FED6EA"></circle><circle cx="77.5" cy="59.5" r="3.4" fill="#FED6EA"></circle><circle cx="98.7" cy="45.4" r="3.4" fill="#FED6EA"></circle><circle cx="122.3" cy="35.6" r="3.4" fill="#FED6EA"></circle><circle cx="147.3" cy="30.6" r="3.4" fill="#FED6EA"></circle><circle cx="172.7" cy="30.6" r="3.4" fill="#FED6EA"></circle><circle cx="197.7" cy="35.6" r="3.4" fill="#FED6EA"></circle><circle cx="221.3" cy="45.4" r="3.4" fill="#FED6EA"></circle><circle cx="242.5" cy="59.5" r="3.4" fill="#FED6EA"></circle><circle cx="260.5" cy="77.5" r="3.4" fill="#FED6EA"></circle><circle cx="274.6" cy="98.7" r="3.4" fill="#FED6EA"></circle><circle cx="284.4" cy="122.3" r="3.4" fill="#FED6EA"></circle><circle cx="289.4" cy="147.3" r="3.4" fill="#FED6EA"></circle><circle cx="160" cy="160" r="122" fill="none" stroke="#FED6EA" stroke-width="4" stroke-dasharray="0.1 9" stroke-linecap="round"></circle><circle cx="160" cy="160" r="112" fill="#FFFFFF" stroke="#FFEAF4" stroke-width="2"></circle></svg>
         <img src="assets/2a74ec98ab8d9d02d99807c7d7b9b759.png" alt="" style="position: absolute; left: 66px; top: 307px; width: 260px; height: 260px; object-fit: contain; filter: drop-shadow(6px 10px 10px rgba(35,27,24,0.16));">
         <span class="yj-blink yj-stitch" style="position: absolute; left: 96px; top: 636px; width: 200px; height: 44px; display: flex; align-items: center; justify-content: center; font-size: 15px; line-height: 20px; font-weight: 800; color: var(--color-accent);">눌러서 주문 시작</span>
+        <span class="yj-note" style="position: absolute; left: 0; top: 688px; width: 393px; text-align: center; font-size: 12px; line-height: 16px; font-weight: 600; color: var(--color-text-secondary);">비공식 가상 주문 서비스</span>
         <img class="yj-pop" src="assets/4da9b108c869e045bf34c10d087c9c66.png" alt="" style="position: absolute; left: 11.5px; top: 40px; width: 370px; height: 277px; object-fit: cover;">
       </div>
       <button onClick="{{toggleSound}}" aria-label="{{soundLabel}}" aria-pressed="{{soundPressed}}" class="yj-roundbtn" style="position: absolute; right: 16px; top: 16px; width: 40px; height: 40px;">
@@ -392,7 +409,7 @@ var CUPS = {
   1: { src: B('1e24bc1b27e61f1f49e3597cf48b9022'), w: 767, h: 800, dw: 196, inner: [6.7, 6.7, 81.4, 78.6], price: 4500, label: '1인', g: '150g', fruitMax: 1, cerealMax: 2, withFruit: 3, noFruit: 4 },
   2: { src: B('968188939b1c80105b4d9a76ef265193'), w: 782, h: 800, dw: 212, inner: [6.7, 6.6, 81.6, 79.3], price: null, label: '2인', g: '300g', fruitMax: 2, cerealMax: 2, withFruit: 5, noFruit: 6 },
   3: { src: B('6b5a282a50b6563af36161bc50d7a253'), w: 769, h: 800, dw: 228, inner: [6.7, 6.7, 81.1, 79.5], price: null, label: '3인', g: '450g', fruitMax: 2, cerealMax: 3, withFruit: 7, noFruit: 8 },
-  4: { src: B('31a3d1497776b99edae83244ca8c7e14'), w: 774, h: 800, dw: 240, inner: [6.8, 6.8, 81.2, 79.6], price: null, label: '4인', g: '600g', fruitMax: 2, cerealMax: 2, withFruit: 9, noFruit: 10 }
+  4: { src: B('31a3d1497776b99edae83244ca8c7e14'), w: 774, h: 800, dw: 240, inner: [6.8, 6.8, 81.2, 79.6], price: 13000, label: '4인', g: '600g', fruitMax: 2, cerealMax: 2, withFruit: 9, noFruit: 10 }
 };
 var SHELL_PRICE = 1500;
 var SHELLS = [
@@ -404,7 +421,7 @@ var SHELLS = [
 var SYRUPS = [
   { id: 'choco', name: '허쉬초코', price: 1000, btl: B('a960579a59c4a2cca58aae3e59ee5177') },
   { id: 'condensed', name: '연유', price: 1000, btl: B('3d0343fd5d9a72a433b78d83851038bc') },
-  { id: 'caramel', name: '카라멜', price: null, btl: B('28c58eb111eb22efcd87e66fb9b70bbb') },
+  { id: 'caramel', name: '카라멜', price: 1000, btl: B('28c58eb111eb22efcd87e66fb9b70bbb') },
   { id: 'peach', name: '피치', price: 1500, btl: B('bf97eb6a776f5e7f978cd1f5c875e56b') }
 ];
 var CATS = [{ id: 'fruit', name: '과일' }, { id: 'cereal', name: '시리얼' }, { id: 'snack', name: '스낵' }, { id: 'dessert', name: '디저트' }];
@@ -420,10 +437,10 @@ var RAW = [
   ['fruit', 'orange', '오렌지', 3500, '5f788554c469cceabb870ef356b9ddc6', '29d24796ddc6d2879ac2de149daa0a70', 10, 0.36],
   ['fruit', 'melon', '멜론', 4000, 'd465338f0317d2bd23f6d9be1dd8c2ad', '5f9fab821d8d99d9c4bb13248fad6a69', 13, 0.36],
   ['fruit', 'pineapple', '파인애플', 3500, '79e7a022d7d468a12ad5e2378e4bff60', '76ec4f40e7d7ff8d9151d4ccf92e59a6', 15, 0.51],
-  ['fruit', 'applemango', '애플망고', null, 'ae869978458759b541c88889adb602f1', '00b572c8316f6bdf27ce5d84787bae10', 10, 0.606],
-  ['fruit', 'kiwi', '키위', null, '200db8db6b8ea75d3ad92de5518bed8c', '82db5dfe3c9cd70f348756e5fb6dceeb', 10, 0.541],
-  ['fruit', 'cherry', '체리', null, 'bd2f94ee3b5eb2be6e4f287a914adc15', '5940300b7e27f20cfd5d29607d91c493', 13, 0.36],
-  ['fruit', 'grape', '샤인머스캣', null, 'e12d0eff5c1eac74d15ab95f04101cb5', '2533d4e1ad1f5c57056074efdcc5abe0', 15, 0.36],
+  ['fruit', 'applemango', '애플망고', 5500, 'ae869978458759b541c88889adb602f1', '00b572c8316f6bdf27ce5d84787bae10', 10, 0.606],
+  ['fruit', 'kiwi', '키위', 3500, '200db8db6b8ea75d3ad92de5518bed8c', '82db5dfe3c9cd70f348756e5fb6dceeb', 10, 0.541],
+  ['fruit', 'cherry', '체리', 4000, 'bd2f94ee3b5eb2be6e4f287a914adc15', '5940300b7e27f20cfd5d29607d91c493', 13, 0.36],
+  ['fruit', 'grape', '샤인머스캣', 4500, 'e12d0eff5c1eac74d15ab95f04101cb5', '2533d4e1ad1f5c57056074efdcc5abe0', 15, 0.36],
   ['cereal', 'fruitloops', '후르트링', 1000, 'a06e640b772fed13fb94023e64d86f3d', 'd95f207624e79f8eb73affa094cd2937', 48, 0.196],
   ['cereal', 'oreoos', '오레오', 1000, '2bb9097421f27366ee20ad98142643e7', 'e02f4c316f8f6160514f476a2373d820', 48, 0.192],
   ['cereal', 'cornflakes', '콘푸로스트', 1000, '20ddaa54e3f83a687afc2111710a54cd', '5fe828ca8e81c9675f721e9a2c4ea582', 42, 0.206],
@@ -815,7 +832,7 @@ class Component extends DCLogic {
     var root = e.currentTarget.closest('[data-yj-root]');
     if (!root) return;
     var r = root.getBoundingClientRect();
-    this.d = { kind: kind, id: id, src: src, w: w, h: h, r: r, sc: r.width / 393, x0: e.clientX, y0: e.clientY, moved: false };
+    this.d = { kind: kind, id: id, src: src, w: w, h: h, r: r, sc: (window.YJ_K || r.width / 393), x0: e.clientX, y0: e.clientY, moved: false };
     this.unlisten();
     window.addEventListener('pointermove', this.onMove);
     window.addEventListener('pointerup', this.onUp);
@@ -827,7 +844,7 @@ class Component extends DCLogic {
     if (!d) return;
     if (!d.moved && Math.abs(e.clientX - d.x0) + Math.abs(e.clientY - d.y0) < 10) return;
     d.moved = true;
-    var x = (e.clientX - d.r.left) / d.sc;
+    var x = (e.clientX - d.r.left) / d.sc - (window.YJ_CX || 0);
     var y = (e.clientY - d.r.top) / d.sc;
     this.setState({ drag: { x: x, y: y, hot: this.hit(x, y) } });
   }
@@ -838,7 +855,7 @@ class Component extends DCLogic {
     this.d = null;
     if (d && d.moved) {
       this.suppress = Date.now();
-      var x = (e.clientX - d.r.left) / d.sc;
+      var x = (e.clientX - d.r.left) / d.sc - (window.YJ_CX || 0);
       var y = (e.clientY - d.r.top) / d.sc;
       if (this.hit(x, y)) this.apply(d.kind, d.id, true);
     }
@@ -1041,7 +1058,15 @@ class Component extends DCLogic {
 comp = new Component({});
 mount();
 // 화면 크기에 맞춰 393×716 프레임을 비율 그대로 키우고 가운데에
-function fit() { var k = Math.min(window.innerWidth / 393, window.innerHeight / 716); document.getElementById('yj-stage').style.transform = 'scale(' + k + ')'; }
+function fit() {
+  var W = window.innerWidth, H = window.innerHeight, Fw = Math.min(W, 440);
+  var k = Math.min(1, Fw / 393, H / 716), lw = Fw / k, lh = H / k;   // 좁거나 낮으면 전체를 조금 줄여 잘리지 않게
+  var st = document.getElementById('yj-stage'), sc = document.getElementById('yj-scale');
+  st.style.width = Fw + 'px'; st.style.height = H + 'px';
+  sc.style.width = lw + 'px'; sc.style.height = lh + 'px'; sc.style.transform = 'scale(' + k + ')';
+  sc.style.setProperty('--cx', ((lw - 393) / 2) + 'px'); sc.style.setProperty('--cy', (lh - 716) + 'px');
+  window.YJ_K = k; window.YJ_CX = (lw - 393) / 2;
+}
 window.addEventListener('resize', fit); fit();
 
 </script>
