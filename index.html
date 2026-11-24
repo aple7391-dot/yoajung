@@ -36,6 +36,7 @@ html,body{margin:0;height:100%;background:#E9E6E2;overflow:hidden;-webkit-tap-hi
 .yj-e-cloth,.yj-e-cup,[aria-label="투명 컵에 따로 담긴 토핑"],.yj-ghost{margin-left:var(--cx)}
 [aria-label="주문서 미리보기"]{left:auto!important;right:16px}
 .yj-e-sheet{left:0!important;width:100%!important;margin-top:var(--cy)}
+.yj-e-sheet::after{content:'';position:absolute;left:0;right:0;top:100%;height:var(--sb,0px);background:#FFFFFF}
 .yj-e-sheet>*{margin-left:var(--cx)}
 .yj-status{transform:translateY(var(--cy))}
 .yj-modal,.yj-paid,.yj-gingham{width:100%!important;height:100%!important}
@@ -658,6 +659,23 @@ function soundPrint() {
   for (var i = 0; i < 14; i++) burst(ac, t + i * 0.035, { freq: 1600, q: 3, vol: 0.06, dur: 0.025 });
   tone(ac, t + 0.75, { wave: 'triangle', f0: 1046, vol: 0.12, dur: 0.3 }); tone(ac, t + 0.85, { wave: 'triangle', f0: 1568, vol: 0.12, dur: 0.4 });
 }
+function soundSize(n) {                       // 사이즈: 1인은 가볍게 뽁, 4인은 묵직하게 쿵
+  var ac = audio(); if (!ac) return; var t = ac.currentTime + 0.02, i = Math.max(0, Math.min(3, n - 1));
+  var f = [920, 660, 470, 320][i], w = [0.13, 0.18, 0.24, 0.3][i], d = [0.08, 0.11, 0.15, 0.21][i];
+  tone(ac, t, { f0: f * 1.3, f1: f * 0.7, vol: w, dur: d });                                   // 컵 내려놓는 톡
+  burst(ac, t, { type: 'lowpass', freq: [2600, 1700, 1100, 650][i], vol: w * 0.55, dur: d * 0.8 });  // 바닥 닿는 소리
+  if (n >= 2) tone(ac, t + 0.012, { f0: f * 0.5, f1: f * 0.34, vol: w * [0, 0.35, 0.6, 0.85][i], dur: d * 1.6 });   // 클수록 묵직한 울림
+  if (n >= 4) burst(ac, t + 0.03, { type: 'lowpass', freq: 220, vol: 0.2, dur: 0.18 });
+}
+function soundStart() {                       // 시작: 통통 튀는 경쾌한 징글 (도-미-솔-도↑ + 반짝)
+  var ac = audio(); if (!ac) return; var t = ac.currentTime + 0.03;
+  [[523, 0], [659, 0.09], [784, 0.18], [1047, 0.3], [784, 0.42], [1047, 0.5]].forEach(function (nt, i) {
+    tone(ac, t + nt[1], { wave: 'triangle', f0: nt[0], vol: i === 5 ? 0.16 : 0.13, dur: i === 5 ? 0.42 : 0.14 });
+    tone(ac, t + nt[1], { wave: 'square', f0: nt[0] * 2, vol: 0.018, dur: 0.08 });
+  });
+  tone(ac, t, { f0: 180, f1: 90, vol: 0.18, dur: 0.12 }); tone(ac, t + 0.3, { f0: 180, f1: 90, vol: 0.16, dur: 0.12 });   // 통 통
+  [1568, 2093, 2637].forEach(function (f, i) { tone(ac, t + 0.56 + i * 0.05, { f0: f, vol: 0.05, dur: 0.25 }); });             // 반짝
+}
 function soundChime() {
   var ac = audio(); if (!ac) return; var t = ac.currentTime + 0.03;
   [784, 988, 1175, 1568].forEach(function (f, i) { tone(ac, t + i * 0.09, { wave: 'triangle', f0: f, vol: 0.13, dur: 0.35 }); tone(ac, t + i * 0.09, { f0: f * 2, vol: 0.035, dur: 0.25 }); });
@@ -877,6 +895,7 @@ class Component extends DCLogic {
   }
 
   setPieces(next, size) {
+    if (size && size !== this.state.size) soundSize(size);
     var s = this.state;
     next = next.filter(function (p, k) { return next.indexOf(p) === k; });   // 같은 토핑 중복 방지
     this.cur = next; this.curBase = s.pieces;                                // 상태 반영 전에도 최신 목록 기준으로 판단
@@ -1175,7 +1194,7 @@ class Component extends DCLogic {
       hasModal: !!s.modal, modal: modal, sizeOpts: sizeOpts,
       paid: !!s.paid, receiptLines: lines.map(fmt),
       intro: !!s.intro, introCls: s.introOut ? 'yj-intro-out' : 'yj-intro-in',
-      startOrder: function () { if (s.introOut) return; soundChime(); self.setState({ introOut: true, entering: true, step: 1 }); track('주문 시작 클릭', {}); setTimeout(function () { self.setState({ intro: false, introOut: false }); }, 620); setTimeout(function () { self.setState({ entering: false }); }, 1300); },
+      startOrder: function () { if (s.introOut) return; soundStart(); self.setState({ introOut: true, entering: true, step: 1 }); track('주문 시작 클릭', {}); setTimeout(function () { self.setState({ intro: false, introOut: false }); }, 620); setTimeout(function () { self.setState({ entering: false }); }, 1300); },
       rootCls: s.entering ? 'entering' : '',
       soundOn: s.soundOn !== false, soundOff: s.soundOn === false, soundPressed: s.soundOn !== false ? 'true' : 'false', soundLabel: s.soundOn !== false ? '소리 끄기' : '소리 켜기',
       toggleSound: function () { var on = s.soundOn === false; SND.on = on; self.setState({ soundOn: on }); },
@@ -1197,6 +1216,28 @@ var DOILY_SVG = "<svg aria-hidden=\"true\" width=\"320\" height=\"320\" viewBox=
 // ===== 배포본 전용: 이벤트(Mixpanel·Amplitude), 공유, 레시피 링크, 짧은 안내 =====
 var SITE = 'https://yoajung-ten.vercel.app';
 window.YJ_WEB = true;
+// 아이폰 소리: 손가락을 뗄 때(사용자 동작 안에서) 오디오를 깨우고, 무음 스위치가 켜져 있어도 들리게 재생 모드로
+function silentWav() {
+  var n = 2205, b = new ArrayBuffer(44 + n * 2), v = new DataView(b), w = function (o, str) { for (var i = 0; i < str.length; i++) v.setUint8(o + i, str.charCodeAt(i)); };
+  w(0, 'RIFF'); v.setUint32(4, 36 + n * 2, true); w(8, 'WAVEfmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+  v.setUint32(24, 22050, true); v.setUint32(28, 44100, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true); w(36, 'data'); v.setUint32(40, n * 2, true);
+  return URL.createObjectURL(new Blob([b], { type: 'audio/wav' }));
+}
+var _htmlAudio = null;
+function unlockAudio() {
+  try { if (navigator.audioSession && navigator.audioSession.type !== 'playback') navigator.audioSession.type = 'playback'; } catch (e) {}
+  if (typeof SND === 'undefined' || !SND.on) return;
+  var ac = audio(); if (!ac) return;
+  try {
+    if (ac.state !== 'running') ac.resume();
+    var src = ac.createBufferSource(); src.buffer = ac.createBuffer(1, 1, 22050); src.connect(ac.destination); src.start(0);
+  } catch (e) {}
+  if (!_htmlAudio && !navigator.audioSession) {   // 예전 iOS: 조용한 소리를 한 번 재생해 무음 스위치를 우회
+    try { _htmlAudio = new Audio(silentWav()); _htmlAudio.setAttribute('playsinline', ''); _htmlAudio.play().catch(function () {}); } catch (e) {}
+  }
+}
+['touchend', 'click', 'pointerup', 'keydown'].forEach(function (ev) { document.addEventListener(ev, unlockAudio, { capture: true, passive: true }); });
+document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible' && typeof SND !== 'undefined' && SND.ctx && SND.ctx.state !== 'running') { try { SND.ctx.resume(); } catch (e) {} } });
 // 주문 번호: 결제하기를 누르면 서버에서 순서대로 받아 옴 (실패하면 번호 없이)
 var _orderReq = null;
 function orderReady() {
@@ -1467,16 +1508,24 @@ comp = new Component({});
 var __r = readRecipe(); if (__r) { Object.assign(comp.state, __r); yjTrack('Recipe Link Opened', { toppings: __r.pieces.length, size: __r.size }); }
 mount();
 // 화면 크기에 맞춰 393×716 프레임을 비율 그대로 키우고 가운데에
+function safeInsets() {                       // 아이폰 주소창·홈 표시줄이 덮는 영역
+  var p = document.getElementById('yj-safe');
+  if (!p) { p = document.createElement('div'); p.id = 'yj-safe'; p.style.cssText = 'position:fixed;left:0;top:0;width:0;visibility:hidden;pointer-events:none;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)'; document.body.appendChild(p); }
+  var cs = getComputedStyle(p); return { t: parseFloat(cs.paddingTop) || 0, b: parseFloat(cs.paddingBottom) || 0 };
+}
 function fit() {
-  var W = window.innerWidth, H = window.innerHeight, Fw = Math.min(W, 440);
-  var k = Math.min(1, Fw / 393, H / 716), lw = Fw / k, lh = H / k;   // 좁거나 낮으면 전체를 조금 줄여 잘리지 않게
+  var vv = window.visualViewport, W = window.innerWidth, H = Math.min(window.innerHeight, vv ? Math.round(vv.height) : 1e9), Fw = Math.min(W, 440);
+  var sa = safeInsets(), Hv = H - sa.t - sa.b;               // 실제로 보이는 높이 (잘리는 아래쪽 빼고)
+  var k = Math.min(1, Fw / 393, Hv / 716), lw = Fw / k, lh = (H - sa.t) / k, sb = sa.b / k;
   var st = document.getElementById('yj-stage'), sc = document.getElementById('yj-scale');
-  st.style.width = Fw + 'px'; st.style.height = H + 'px';
+  st.style.width = Fw + 'px'; st.style.height = (H - sa.t) + 'px'; st.style.marginTop = sa.t + 'px';
   sc.style.width = lw + 'px'; sc.style.height = lh + 'px'; sc.style.transform = 'scale(' + k + ')';
-  sc.style.setProperty('--cx', ((lw - 393) / 2) + 'px'); sc.style.setProperty('--cy', (lh - 716) + 'px');
+  sc.style.setProperty('--cx', ((lw - 393) / 2) + 'px'); sc.style.setProperty('--cy', (lh - sb - 716) + 'px'); sc.style.setProperty('--sb', sb + 'px');
   window.YJ_K = k; window.YJ_CX = (lw - 393) / 2;
 }
-window.addEventListener('resize', fit); fit();
+window.addEventListener('resize', fit); window.addEventListener('orientationchange', function () { setTimeout(fit, 300); });
+if (window.visualViewport) visualViewport.addEventListener('resize', fit);
+fit(); setTimeout(fit, 400);
 
 </script>
 </body>
