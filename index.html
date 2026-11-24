@@ -42,7 +42,7 @@ html,body{margin:0;height:100%;background:#E9E6E2;overflow:hidden;-webkit-tap-hi
 .yj-modal>.yj-sheet{margin-left:var(--cx)}
 .yj-paid>*{margin-left:var(--cx)}
 .yj-paid>.yj-paid-bottom{margin-top:var(--cy)}
-.yj-paid>.yj-fb{margin-left:0}
+.yj-paid>.yj-fb,.yj-paid>.yj-center{margin-left:0}
 .yj-gingham>button[aria-label="주문 시작하기"],.yj-gingham>div[aria-hidden]{width:100%!important;height:100%!important}
 .yj-gingham>div[aria-hidden]>*{margin-left:var(--cx)}
 .yj-gingham>div[aria-hidden]>svg,.yj-gingham>div[aria-hidden]>img:not(.yj-pop){margin-top:calc(var(--cy) / 2)}
@@ -338,8 +338,8 @@ a{color:#231B18}a:hover{color:#E5007A}
         <div class="yj-fb" role="group" aria-label="어땠어요?" style="position: absolute; left: 50%; top: 14px; transform: translateX(-50%); z-index: 2; height: 52px; padding: 0 8px 0 18px; border-radius: 999px; background: #FFFFFF; box-shadow: 0 8px 24px rgba(70,6,34,0.22); display: flex; align-items: center; gap: 10px; white-space: nowrap;">
           <span style="font-size: 15px; line-height: 20px; font-weight: 800; color: var(--color-text-primary);">{{fbText}}</span>
           <sc-if value="{{fbAsk}}">
-            <button onClick="{{voteUp}}" aria-label="붐업" style="height: 36px; padding: 0 12px; border-radius: 999px; background: var(--color-surface-tint); color: var(--color-accent); display: flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 800;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 11v9H4v-9h3zM7 11l4-8c1.7 0 2.5 1.2 2.2 2.8L12.6 9H18a2 2 0 0 1 2 2.3l-1.2 6.4A2 2 0 0 1 16.8 20H7"></path></svg>붐업</button>
-            <button onClick="{{voteDown}}" aria-label="붐따" style="height: 36px; padding: 0 12px; border-radius: 999px; background: #F2F0F1; color: var(--color-text-secondary); display: flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 800;"><svg style="transform: rotate(180deg);" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 11v9H4v-9h3zM7 11l4-8c1.7 0 2.5 1.2 2.2 2.8L12.6 9H18a2 2 0 0 1 2 2.3l-1.2 6.4A2 2 0 0 1 16.8 20H7"></path></svg>붐따</button>
+            <button onClick="{{voteUp}}" aria-label="붐업" style="width: 40px; height: 40px; justify-content: center; border-radius: 999px; background: var(--color-surface-tint); color: var(--color-accent); display: flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 800;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 11v9H4v-9h3zM7 11l4-8c1.7 0 2.5 1.2 2.2 2.8L12.6 9H18a2 2 0 0 1 2 2.3l-1.2 6.4A2 2 0 0 1 16.8 20H7"></path></svg></button>
+            <button onClick="{{voteDown}}" aria-label="붐따" style="width: 40px; height: 40px; justify-content: center; border-radius: 999px; background: #F2F0F1; color: var(--color-text-secondary); display: flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 800;"><svg style="transform: rotate(180deg);" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 11v9H4v-9h3zM7 11l4-8c1.7 0 2.5 1.2 2.2 2.8L12.6 9H18a2 2 0 0 1 2 2.3l-1.2 6.4A2 2 0 0 1 16.8 20H7"></path></svg></button>
           </sc-if>
         </div>
       </sc-if>
@@ -360,11 +360,13 @@ a{color:#231B18}a:hover{color:#E5007A}
         </div>
         <svg aria-hidden="true" width="329" height="8" viewBox="0 0 329 8" style="position: absolute; left: 0; bottom: -8px;"><path fill="#FFFFFF" d="M0 0H329L321 8L313 0L305 8L297 0L289 8L281 0L273 8L265 0L257 8L249 0L241 8L233 0L225 8L217 0L209 8L201 0L193 8L185 0L177 8L169 0L161 8L153 0L145 8L137 0L129 8L121 0L113 8L105 0L97 8L89 0L81 8L73 0L65 8L57 0L49 8L41 0L33 8L25 0L17 8L9 0L1 8L0 0Z"></path></svg>
       </article>
-      <p style="position: absolute; left: 16px; top: 548px; width: 361px; margin: 0; text-align: center; font-size: 32px; line-height: 40px; font-weight: 800; letter-spacing: -0.8px; color: #FFFFFF;" class="yj-paid-bottom">맛있게 드세요!</p>
-      <div class="yj-paid-bottom" style="position: absolute; left: 16px; top: 600px; width: 361px; display: flex; justify-content: center; gap: 8px;">
+      <p style="position: absolute; left: 0; right: 0; top: 548px; margin: 0; text-align: center; font-size: 32px; line-height: 40px; font-weight: 800; letter-spacing: -0.8px; color: #FFFFFF;" class="yj-paid-bottom yj-center">맛있게 드세요!</p>
+      <sc-if value="{{fbChoices}}">
+      <div class="yj-paid-bottom yj-choices" style="position: absolute; left: 16px; top: 600px; width: 361px; display: flex; justify-content: center; gap: 8px;">
         <button onClick="{{askIngredient}}" style="height: 32px; padding: 0 14px; border-radius: 999px; border: 1.5px solid rgba(255,255,255,0.7); color: #FFFFFF; font-size: 13px; line-height: 18px; font-weight: 700;">재료 추가해주세요</button>
-        <button onClick="{{askMessage}}" style="height: 32px; padding: 0 14px; border-radius: 999px; border: 1.5px solid rgba(255,255,255,0.7); color: #FFFFFF; font-size: 13px; line-height: 18px; font-weight: 700;">만든 사람에게 한마디</button>
+        <button onClick="{{askMessage}}" style="height: 32px; padding: 0 14px; border-radius: 999px; border: 1.5px solid rgba(255,255,255,0.7); color: #FFFFFF; font-size: 13px; line-height: 18px; font-weight: 700;">직접 얘기할래요</button>
       </div>
+      </sc-if>
       <div class="yj-paid-bottom" style="position: absolute; left: 16px; top: 648px; width: 361px; display: flex; gap: 8px;">
         <button onClick="{{shareRecipe}}" style="flex: 1; height: 48px; border-radius: 999px; background: var(--color-text-primary); color: #FFFFFF; font-size: 16px; line-height: 24px; font-weight: 700;">레시피 공유하기</button>
         <button onClick="{{restart}}" style="flex: 1; height: 48px; border-radius: 999px; background: #FFFFFF; color: var(--color-accent); font-size: 16px; line-height: 24px; font-weight: 700;">처음으로</button>
@@ -950,7 +952,7 @@ class Component extends DCLogic {
 
   goHome() {
     track('Order Reset', { from_step: STEP_KEY[this.state.step], paid: !!this.state.paid });
-    this.setState({ step: 1, size: 1, shell: null, syrup: null, pieces: [], cat: 'fruit', modal: null, paid: false, intro: SHOW_INTRO, introOut: false, sharedView: false, fbShow: false, fbDone: false, sizeTip: false, toast: false });
+    this.setState({ step: 1, size: 1, shell: null, syrup: null, pieces: [], cat: 'fruit', modal: null, paid: false, intro: SHOW_INTRO, introOut: false, sharedView: false, fbShow: false, fbDone: false, voted: false, sizeTip: false, toast: false });
     if (window.history && window.history.replaceState && /[?&]r=/.test(window.location.search)) window.history.replaceState(null, '', window.location.pathname);
   }
 
@@ -1072,7 +1074,7 @@ class Component extends DCLogic {
     };
     if (s.modal === 'ingredient' || s.modal === 'message') {
       var ing = s.modal === 'ingredient';
-      modal = { title: ing ? '뭔가 부족했나요?' : '만든 사람에게 한마디', body: ing ? '있었으면 하는 재료를 알려주세요.' : '좋았던 점, 불편했던 점 무엇이든 괜찮아요.', hasBody: true, isSize: false, isForm: true, hasPrimary: true,
+      modal = { title: ing ? '뭔가 부족했나요?' : '직접 얘기할래요', body: ing ? '있었으면 하는 재료를 알려주세요.' : '좋았던 점, 불편했던 점 무엇이든 괜찮아요.', hasBody: true, isSize: false, isForm: true, hasPrimary: true,
         placeholder: ing ? '예) 피스타치오 시럽' : '여기에 적어주세요', boxH: ing ? 52 : 120,
         onText: function (e) { self.formText = e.target.value; },
         secondaryLabel: '닫기', primaryLabel: ing ? '재료 추가' : '보내기', secondary: close, primary: function () { sendForm(s.modal); } };
@@ -1154,9 +1156,9 @@ class Component extends DCLogic {
       soundOn: s.soundOn !== false, soundOff: s.soundOn === false, soundPressed: s.soundOn !== false ? 'true' : 'false', soundLabel: s.soundOn !== false ? '소리 끄기' : '소리 켜기',
       toggleSound: function () { var on = s.soundOn === false; SND.on = on; self.setState({ soundOn: on }); },
       formText: self.formText || '',
-      fbShow: !!s.paid && !!s.fbShow, fbAsk: !s.fbDone, fbText: s.fbDone ? (s.fbMsg || '고마워요!') : '어땠어요?',
-      voteUp: function () { track('Feedback Vote', { vote: 'up' }); self.setState({ fbDone: true, fbMsg: '고마워요!' }); },
-      voteDown: function () { track('Feedback Vote', { vote: 'down' }); self.setState({ fbDone: true, fbMsg: '더 좋아질게요!' }); },
+      fbShow: !!s.paid && !!s.fbShow, fbChoices: !!s.paid && !!s.voted, fbAsk: !s.fbDone, fbText: s.fbDone ? (s.fbMsg || '고마워요!') : '어땠어요?',
+      voteUp: function () { track('Feedback Vote', { vote: 'up' }); self.setState({ fbDone: true, voted: true, fbMsg: '고마워요! 더 알려주실래요?' }); },
+      voteDown: function () { track('Feedback Vote', { vote: 'down' }); self.setState({ fbDone: true, voted: true, fbMsg: '아쉬운 점을 알려주세요' }); },
       askIngredient: function () { self.formText = ''; self.setState({ modal: 'ingredient' }); },
       askMessage: function () { self.formText = ''; self.setState({ modal: 'message' }); },
       shareRecipe: function () { track('Share Clicked', { from: 'recipe', total: total }); if (window.yjShareRecipe) window.yjShareRecipe({ size: s.size, shell: s.shell, syrup: s.syrup, pieces: s.pieces.slice(), total: total, lines: lines.map(fmt) }); },
