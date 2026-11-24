@@ -16,7 +16,10 @@ module.exports = async (req, res) => {
     const found = await head(pathFor(code)).catch(() => null);
     if (found) image = SITE + '/og/' + keyFor(code);
   }
-  const target = '/?r=' + code;
+  // 원래 어디서 눌렀는지(카톡·X 등)를 잃지 않게 이전 주소를 ref로 넘긴다
+  const referer = String(req.headers.referer || req.headers.referrer || '');
+  const fromElsewhere = referer && !/^https?:\/\/(www\.)?yoajung-ten\.vercel\.app/i.test(referer);
+  const target = '/?r=' + code + (fromElsewhere ? '&ref=' + encodeURIComponent(referer.slice(0, 300)) : '');
   const og = image || SITE + '/og.png';
   const html = '<!doctype html><html lang="ko"><head><meta charset="utf-8">' +
     '<meta name="viewport" content="width=device-width,initial-scale=1">' +
