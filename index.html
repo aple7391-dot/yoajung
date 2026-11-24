@@ -1266,7 +1266,7 @@ function composeSave() {                      // 저장 이미지: 레이스 접
   var v = comp.renderVals(), lines = v.receiptLines || [], total = v.totalText || '';
   var F = '"Pretendard Variable", Pretendard, sans-serif', PINK = '#E5007A', INK = '#231B18', SUB = '#6E6A73';
   var W = 1080, PS = 720, PT = 64, RW = 744, RX = (W - RW) / 2, RT = PT + PS + 24, PAD = 48, ROW = 78;
-  var RB = RT + 44 + 66 + 6 + 12 + lines.length * ROW + 24 + 78 + PAD, ZZ = 21, H = RB + ZZ + 96;
+  var RB = RT + 44 + 66 + 6 + 12 + lines.length * ROW + 24 + 78 + PAD, ZZ = 21, H = RB + ZZ + 140;
   var c = document.createElement('canvas'); c.width = W; c.height = H; var g = c.getContext('2d');
   paleGingham(g, W, H);
   return drawPlate(g, W / 2, PT + PS / 2, PS).then(function () {
@@ -1293,9 +1293,11 @@ function composeSave() {                      // 저장 이미지: 레이스 접
     g.fillStyle = INK; g.font = '700 42px ' + F; g.textAlign = 'left'; g.fillText('합계', L, y + 56);
     g.font = '800 60px ' + F; g.textAlign = 'right'; g.fillText(total, R, y + 58);
     // 결제 완료 도장
-    g.save(); g.translate(RX + RW * 0.58, RB - 120 - 93);   // 이름과 가격 사이 빈자리 g.rotate(-12 * Math.PI / 180); g.globalAlpha = 0.9;
+    // 이름과 가격 사이 빈자리, 살짝 삐뚤게
+    g.save(); g.translate(RX + RW * 0.58, RB - 120 - 93); g.rotate(-14 * Math.PI / 180); g.globalAlpha = 0.88;
     g.strokeStyle = PINK; g.lineWidth = 7.5; g.beginPath(); g.arc(0, 0, 89, 0, Math.PI * 2); g.stroke();
     g.fillStyle = PINK; g.font = '800 36px ' + F; g.textAlign = 'center'; g.fillText('결제', 0, -6); g.fillText('완료', 0, 40); g.restore();
+    g.fillStyle = 'rgba(176,48,110,0.7)'; g.font = '600 30px ' + F; g.textAlign = 'center'; g.fillText('yoajung-ten.vercel.app', W / 2, RB + ZZ + 84);
     g.textAlign = 'left';
     return toBlob(c);
   });
