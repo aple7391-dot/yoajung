@@ -1268,26 +1268,28 @@ function composeSave() {                      // 저장용 정사각형
   paleGingham(g, 1080, 1080);
   return drawPlate(g, 540, 540, 900).then(function () { return toBlob(c); });
 }
-// 공유 썸네일 1200×630: 왼쪽 레시피(최대 4줄 + 외 N개, 크게), 오른쪽 레이스 접시
+// 공유 썸네일 1200×630: 왼쪽 레시피(최대 6줄, 넘치면 5줄 + 외 N개)를 세로 가운데, 오른쪽 레이스 접시
 function composeRecipe(r) {
   var c = document.createElement('canvas'); c.width = 1200; c.height = 630; var g = c.getContext('2d');
   paleGingham(g, 1200, 630);
   return drawPlate(g, 885, 315, 560).then(function () {
-    var F = '"Pretendard Variable", Pretendard, sans-serif', L = 72, R = 560;
-    g.fillStyle = '#E5007A'; g.font = '800 34px ' + F; g.fillText('나만의 아이스크림 레시피', L, 112);
-    var rows = r.lines.slice(0, 4);
+    var F = '"Pretendard Variable", Pretendard, sans-serif', L = 72, R = 560, RH = 62, TH = 80, GAP = 28;
+    var rows = r.lines.length <= 6 ? r.lines.slice() : r.lines.slice(0, 5);
+    var more = r.lines.length - rows.length, k = rows.length + (more > 0 ? 1 : 0);
+    var y0 = Math.round((630 - (k * RH + GAP + 4 + TH)) / 2);   // 위아래 여백 같게
     rows.forEach(function (l, i) {
-      var y = 196 + i * 62;
+      var y = y0 + i * RH + 44;
       g.fillStyle = '#231B18'; g.font = '700 36px ' + F; g.textAlign = 'left';
       var name = l.name; while (g.measureText(name).width > 330 && name.length > 2) name = name.slice(0, -1); if (name !== l.name) name += '…';
       g.fillText(name, L, y);
       g.fillStyle = '#6E6A73'; g.font = '600 32px ' + F; g.textAlign = 'right'; g.fillText(l.price, R, y); g.textAlign = 'left';
     });
-    var more = r.lines.length - rows.length;
-    if (more > 0) { g.fillStyle = '#6E6A73'; g.font = '700 30px ' + F; g.fillText('외 ' + more + '개', L, 196 + rows.length * 62); }
-    g.fillStyle = '#231B18'; g.fillRect(L, 488, R - L, 4);
-    g.font = '800 36px ' + F; g.fillText('합계', L, 560);
-    g.fillStyle = '#E5007A'; g.font = '800 64px ' + F; g.textAlign = 'right'; g.fillText(r.total.toLocaleString('ko-KR') + '원', R, 566); g.textAlign = 'left';
+    if (more > 0) { g.fillStyle = '#6E6A73'; g.font = '600 30px ' + F; g.fillText('외 ' + more + '개', L, y0 + rows.length * RH + 44); }
+    var dy = y0 + k * RH + GAP;
+    g.fillStyle = '#231B18'; g.fillRect(L, dy, R - L, 4);
+    var ty = dy + 4 + 62;
+    g.font = '600 34px ' + F; g.fillText('합계', L, ty);
+    g.fillStyle = '#E5007A'; g.font = '600 58px ' + F; g.textAlign = 'right'; g.fillText(r.total.toLocaleString('ko-KR') + '원', R, ty); g.textAlign = 'left';
     return toBlob(c);
   });
 }
