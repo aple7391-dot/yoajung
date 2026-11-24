@@ -32,7 +32,8 @@ module.exports = async (req, res) => {
     const blob = await put(pathname, buf, { access: 'public', contentType: 'image/png', addRandomSuffix: false, cacheControlMaxAge: 31536000 });
     return res.status(200).json({ ok: true, url: blob.url });
   } catch (e) {
-    return res.status(500).json({ ok: false });
+    console.error('recipe blob error', e && e.message);
+    return res.status(500).json({ ok: false, reason: String((e && e.name) || '') + ': ' + String((e && e.message) || '').slice(0, 160) });
   }
 };
 module.exports.pathFor = pathFor;
