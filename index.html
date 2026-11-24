@@ -286,7 +286,7 @@ a{color:#231B18}a:hover{color:#E5007A}
       <div aria-label="주문서" style="position: absolute; left: 20px; top: 20px; width: 353px;">
         <div style="display: flex; align-items: center; justify-content: space-between; height: 24px;">
           <span style="display: flex; align-items: center; gap: 6px; font-size: 14px; line-height: 20px; font-weight: 800; color: var(--color-accent);"><img src="assets/4aaa7a9e782d7c2fef8269e132cfdbb0.svg" alt="" style="width: 20px; height: 20px; object-fit: contain;">주문서</span>
-          <span style="font-size: 12px; line-height: 16px; font-weight: 600; color: var(--color-text-secondary); font-variant-numeric: tabular-nums;">No.0047 · {{summaryCount}}</span>
+          <span style="font-size: 12px; line-height: 16px; font-weight: 600; color: var(--color-text-secondary); font-variant-numeric: tabular-nums;">{{summaryCount}}</span>
         </div>
         <div style="margin: 8px 0 4px; border-top: 1.5px dashed var(--color-divider);"></div>
         <div class="yj-row" style="height: 88px; overflow-y: auto;">
@@ -358,7 +358,7 @@ a{color:#231B18}a:hover{color:#E5007A}
       <article class="yj-print" style="position: absolute; left: 78px; top: 198px; width: 237px; box-sizing: border-box; padding: 14px 16px 16px; background: #FFFFFF; filter: drop-shadow(6px 10px 10px rgba(70,6,34,0.3)); display: flex; flex-direction: column; gap: 8px; animation-delay: .7s;">
         <div style="display: flex; align-items: baseline; justify-content: space-between; padding-bottom: 6px; border-bottom: 2px solid var(--color-accent);">
           <span style="font-size: 16px; line-height: 22px; font-weight: 800; color: var(--color-accent);">주문서</span>
-          <span style="font-size: 12px; line-height: 16px; font-weight: 700; color: var(--color-accent); font-variant-numeric: tabular-nums;">No.0047</span>
+          <span style="font-size: 12px; line-height: 16px; font-weight: 700; color: var(--color-accent); font-variant-numeric: tabular-nums;">{{orderNoText}}</span>
         </div>
         <div class="yj-row" style="display: flex; flex-direction: column; max-height: 162px; overflow-y: auto;">
           <sc-for list="{{receiptLines}}" as="r">
@@ -965,7 +965,7 @@ class Component extends DCLogic {
 
   goHome() {
     track('Order Reset', { from_step: STEP_KEY[this.state.step], paid: !!this.state.paid });
-    this.setState({ step: 1, size: 1, shell: null, syrup: null, pieces: [], cat: 'fruit', modal: null, paid: false, intro: SHOW_INTRO, introOut: false, sharedView: false, fbShow: false, fbDone: false, voted: false, paying: 0, saveImg: '', sizeTip: false, toast: false });
+    this.setState({ step: 1, size: 1, shell: null, syrup: null, pieces: [], cat: 'fruit', modal: null, paid: false, intro: SHOW_INTRO, introOut: false, sharedView: false, fbShow: false, fbDone: false, voted: false, paying: 0, saveImg: '', orderNo: 0, sizeTip: false, toast: false });
     if (window.history && window.history.replaceState && /[?&]r=/.test(window.location.search)) window.history.replaceState(null, '', window.location.pathname);
   }
 
@@ -1145,7 +1145,7 @@ class Component extends DCLogic {
       lidOn: (s.paying || 0) >= 1 || !!s.paid, lidCls: s.paid ? 'yj-lid-off' : 'yj-lid-on', stickerCls: s.paid ? 'yj-sticker-off' : 'yj-sticker', stickerDelay: s.paid ? '0s' : '.72s',
       cupZ: s.paid ? 31 : 1, cupTf: s.paid ? ('translate(' + (155.5 - (g.cupL + g.cupW / 2)) + 'px, ' + (106.5 - (g.cupT + g.cupH / 2)) + 'px) scale(' + (91 / g.cupW).toFixed(3) + ')') : 'none',
       clothOut: (s.paying || 0) >= 2 ? 'yj-cloth-out' : '', sheetOut: (s.paying || 0) >= 2 ? 'yj-out-down' : '', topOut: (s.paying || 0) >= 2 ? 'yj-top-out' : '',
-      saveImg: s.paid && s.saveImg ? s.saveImg : '', saveHint: s.saveImg ? '꾹 눌러서 저장' : ' ',
+      orderNoText: s.orderNo ? ('No.' + String(s.orderNo).padStart(4, '0')) : (window.YJ_WEB ? '' : 'No.0047'), saveImg: s.paid && s.saveImg ? s.saveImg : '', saveHint: s.saveImg ? '꾹 눌러서 저장' : ' ',
       dropHot: !!(drag && drag.hot),
       statusTop: L.cupBottom + 4, toastOffset: 0,
       showToast: !!s.toast, toastText: s.toast || '', showDots: s.step === 3 && !s.toast, dots: dots, dotsLabel: '컵 ' + limitNow + '칸 중 ' + plan.total + '칸 찼어요',
@@ -1191,6 +1191,17 @@ class Component extends DCLogic {
 var DOILY_SVG = "<svg aria-hidden=\"true\" width=\"320\" height=\"320\" viewBox=\"0 0 320 320\" style=\"position: absolute; left: 36px; top: 248px; filter: drop-shadow(4px 8px 6px rgba(35,27,24,0.12));\"><path d=\"M302.0 160.0 A14.6 14.6 0 0 1 299.3 187.7 A14.6 14.6 0 0 1 291.2 214.3 A14.6 14.6 0 0 1 278.1 238.9 A14.6 14.6 0 0 1 260.4 260.4 A14.6 14.6 0 0 1 238.9 278.1 A14.6 14.6 0 0 1 214.3 291.2 A14.6 14.6 0 0 1 187.7 299.3 A14.6 14.6 0 0 1 160.0 302.0 A14.6 14.6 0 0 1 132.3 299.3 A14.6 14.6 0 0 1 105.7 291.2 A14.6 14.6 0 0 1 81.1 278.1 A14.6 14.6 0 0 1 59.6 260.4 A14.6 14.6 0 0 1 41.9 238.9 A14.6 14.6 0 0 1 28.8 214.3 A14.6 14.6 0 0 1 20.7 187.7 A14.6 14.6 0 0 1 18.0 160.0 A14.6 14.6 0 0 1 20.7 132.3 A14.6 14.6 0 0 1 28.8 105.7 A14.6 14.6 0 0 1 41.9 81.1 A14.6 14.6 0 0 1 59.6 59.6 A14.6 14.6 0 0 1 81.1 41.9 A14.6 14.6 0 0 1 105.7 28.8 A14.6 14.6 0 0 1 132.3 20.7 A14.6 14.6 0 0 1 160.0 18.0 A14.6 14.6 0 0 1 187.7 20.7 A14.6 14.6 0 0 1 214.3 28.8 A14.6 14.6 0 0 1 238.9 41.9 A14.6 14.6 0 0 1 260.4 59.6 A14.6 14.6 0 0 1 278.1 81.1 A14.6 14.6 0 0 1 291.2 105.7 A14.6 14.6 0 0 1 299.3 132.3 A14.6 14.6 0 0 1 302.0 160.0 Z\" fill=\"#FFFFFF\"></path><circle cx=\"289.4\" cy=\"172.7\" r=\"3.4\" fill=\"#FED6EA\"></circle><circle cx=\"284.4\" cy=\"197.7\" r=\"3.4\" fill=\"#FED6EA\"></circle><circle cx=\"274.6\" cy=\"221.3\" r=\"3.4\" fill=\"#FED6EA\"></circle><circle cx=\"260.5\" cy=\"242.5\" r=\"3.4\" fill=\"#FED6EA\"></circle><circle cx=\"242.5\" cy=\"260.5\" r=\"3.4\" fill=\"#FED6EA\"></circle><circle cx=\"221.3\" cy=\"274.6\" r=\"3.4\" fill=\"#FED6EA\"></circle><circle cx=\"197.7\" cy=\"284.4\" r=\"3.4\" fill=\"#FED6EA\"></circle><circle cx=\"172.7\" cy=\"289.4\" r=\"3.4\" fill=\"#FED6EA\"></circle><circle cx=\"147.3\" cy=\"289.4\" r=\"3.4\" fill=\"#FED6EA\"></circle><circle cx=\"122.3\" cy=\"284.4\" r=\"3.4\" fill=\"#FED6EA\"></circle><circle cx=\"98.7\" cy=\"274.6\" r=\"3.4\" fill=\"#FED6EA\"></circle><circle cx=\"77.5\" cy=\"260.5\" r=\"3.4\" fill=\"#FED6EA\"></circle><circle cx=\"59.5\" cy=\"242.5\" r=\"3.4\" fill=\"#FED6EA\"></circle><circle cx=\"45.4\" cy=\"221.3\" r=\"3.4\" fill=\"#FED6EA\"></circle><circle cx=\"35.6\" cy=\"197.7\" r=\"3.4\" fill=\"#FED6EA\"></circle><circle cx=\"30.6\" cy=\"172.7\" r=\"3.4\" fill=\"#FED6EA\"></circle><circle cx=\"30.6\" cy=\"147.3\" r=\"3.4\" fill=\"#FED6EA\"></circle><circle cx=\"35.6\" cy=\"122.3\" r=\"3.4\" fill=\"#FED6EA\"></circle><circle cx=\"45.4\" cy=\"98.7\" r=\"3.4\" fill=\"#FED6EA\"></circle><circle cx=\"59.5\" cy=\"77.5\" r=\"3.4\" fill=\"#FED6EA\"></circle><circle cx=\"77.5\" cy=\"59.5\" r=\"3.4\" fill=\"#FED6EA\"></circle><circle cx=\"98.7\" cy=\"45.4\" r=\"3.4\" fill=\"#FED6EA\"></circle><circle cx=\"122.3\" cy=\"35.6\" r=\"3.4\" fill=\"#FED6EA\"></circle><circle cx=\"147.3\" cy=\"30.6\" r=\"3.4\" fill=\"#FED6EA\"></circle><circle cx=\"172.7\" cy=\"30.6\" r=\"3.4\" fill=\"#FED6EA\"></circle><circle cx=\"197.7\" cy=\"35.6\" r=\"3.4\" fill=\"#FED6EA\"></circle><circle cx=\"221.3\" cy=\"45.4\" r=\"3.4\" fill=\"#FED6EA\"></circle><circle cx=\"242.5\" cy=\"59.5\" r=\"3.4\" fill=\"#FED6EA\"></circle><circle cx=\"260.5\" cy=\"77.5\" r=\"3.4\" fill=\"#FED6EA\"></circle><circle cx=\"274.6\" cy=\"98.7\" r=\"3.4\" fill=\"#FED6EA\"></circle><circle cx=\"284.4\" cy=\"122.3\" r=\"3.4\" fill=\"#FED6EA\"></circle><circle cx=\"289.4\" cy=\"147.3\" r=\"3.4\" fill=\"#FED6EA\"></circle><circle cx=\"160\" cy=\"160\" r=\"122\" fill=\"none\" stroke=\"#FED6EA\" stroke-width=\"4\" stroke-dasharray=\"0.1 9\" stroke-linecap=\"round\"></circle><circle cx=\"160\" cy=\"160\" r=\"112\" fill=\"#FFFFFF\" stroke=\"#FFEAF4\" stroke-width=\"2\"></circle></svg>";
 // ===== 배포본 전용: 이벤트(Mixpanel·Amplitude), 공유, 레시피 링크, 짧은 안내 =====
 var SITE = 'https://yoajung-ten.vercel.app';
+window.YJ_WEB = true;
+// 주문 번호: 결제하기를 누르면 서버에서 순서대로 받아 옴 (실패하면 번호 없이)
+var _orderReq = null;
+function orderReady() {
+  if (!_orderReq) {
+    _orderReq = fetch('/api/order', { method: 'POST' }).then(function (res) { return res.ok ? res.json() : null; })
+      .then(function (d) { var n = d && d.ok ? +d.n || 0 : 0; if (n && comp && (comp.state.paying || comp.state.paid)) comp.setState({ orderNo: n }); return n; })
+      .catch(function () { return 0; });
+  }
+  return _orderReq;
+}
 function sendEvent(name, props, beacon) {
   try { if (window.mixpanel && mixpanel.track) mixpanel.track(name, props, beacon ? { transport: 'sendBeacon' } : undefined); } catch (e) {}
   try { if (window.amplitude && amplitude.track) { amplitude.track(name, props); if (beacon && amplitude.flush) { amplitude.setTransport && amplitude.setTransport('beacon'); amplitude.flush(); } } } catch (e) {}
@@ -1214,7 +1225,7 @@ window.yjShareApp = function () {
 // 레시피 → 링크 (?r=)
 function b64u(s) { return btoa(unescape(encodeURIComponent(s))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
 function unb64u(s) { s = s.replace(/-/g, '+').replace(/_/g, '/'); while (s.length % 4) s += '='; return decodeURIComponent(escape(atob(s))); }
-function recipeCode(r) { return b64u(JSON.stringify({ z: r.size, s: r.shell, p: r.pieces, y: r.syrup })); }
+function recipeCode(r) { var d = { z: r.size, s: r.shell, p: r.pieces, y: r.syrup }; if (r.n) d.n = r.n; return b64u(JSON.stringify(d)); }
 // 공유 링크는 /r/<코드>: 이 주소의 OG 이미지가 내가 만든 레시피 썸네일이라 카톡엔 미리보기 카드 하나만 뜬다
 function recipeUrl(r) { return SITE + '/r/' + recipeCode(r); }
 function loadImg(src) { return new Promise(function (ok) { var i = new Image(); i.onload = function () { ok(i); }; i.onerror = function () { ok(null); }; i.src = src; }); }
@@ -1277,7 +1288,7 @@ function composeSave() {                      // 저장 이미지: 레이스 접
     g.lineTo(RX, RB); g.closePath(); g.fill(); g.restore();
     var L = RX + PAD, R = RX + RW - PAD, y = RT + 44;
     g.fillStyle = PINK; g.font = '800 48px ' + F; g.textAlign = 'left'; g.fillText('주문서', L, y + 46);
-    g.font = '700 36px ' + F; g.textAlign = 'right'; g.fillText('No.0047', R, y + 46);
+    g.font = '700 36px ' + F; g.textAlign = 'right'; g.fillText(v.orderNoText || '', R, y + 46);
     g.fillRect(L, y + 66, R - L, 6); y += 66 + 6 + 12;
     g.setLineDash([9, 6]); g.lineWidth = 2; g.strokeStyle = '#E8DDE2';
     lines.forEach(function (l) {
@@ -1302,28 +1313,32 @@ function composeSave() {                      // 저장 이미지: 레이스 접
     return toBlob(c);
   });
 }
-// 공유 썸네일 1200×630: 왼쪽 레시피(최대 6줄, 넘치면 5줄 + 외 N개)를 세로 가운데, 오른쪽 레이스 접시
+// 공유 썸네일 1200×630: 왼쪽에 아래로 빠져나가는 주문서 종이(주문서 + 번호, 재료 4줄 + 외 N개, 합계), 오른쪽 레이스 접시
 function composeRecipe(r) {
   var c = document.createElement('canvas'); c.width = 1200; c.height = 630; var g = c.getContext('2d');
+  var n = r.n || comp.state.orderNo || 0, no = n ? 'No.' + String(n).padStart(4, '0') : '';
   paleGingham(g, 1200, 630);
-  return drawPlate(g, 885, 315, 560).then(function () {
-    var F = '"Pretendard Variable", Pretendard, sans-serif', L = 72, R = 560, RH = 62, TH = 80, GAP = 28;
-    var rows = r.lines.length <= 6 ? r.lines.slice() : r.lines.slice(0, 5);
-    var more = r.lines.length - rows.length, k = rows.length + (more > 0 ? 1 : 0);
-    var y0 = Math.round((630 - (k * RH + GAP + 4 + TH)) / 2);   // 위아래 여백 같게
-    rows.forEach(function (l, i) {
-      var y = y0 + i * RH + 44;
-      g.fillStyle = '#231B18'; g.font = '700 36px ' + F; g.textAlign = 'left';
-      var name = l.name; while (g.measureText(name).width > 330 && name.length > 2) name = name.slice(0, -1); if (name !== l.name) name += '…';
-      g.fillText(name, L, y);
-      g.fillStyle = '#6E6A73'; g.font = '600 32px ' + F; g.textAlign = 'right'; g.fillText(l.price, R, y); g.textAlign = 'left';
+  return drawPlate(g, 900, 315, 540).then(function () {
+    var F = '"Pretendard Variable", Pretendard, sans-serif', PINK = '#E5007A', INK = '#231B18', SUB = '#6E6A73';
+    var X = 64, Y = 72, PW = 520, L = X + 44, R = X + PW - 44;
+    g.save(); g.shadowColor = 'rgba(70,6,34,0.16)'; g.shadowBlur = 28; g.shadowOffsetX = 10; g.shadowOffsetY = 16;
+    g.fillStyle = '#FFFFFF'; g.fillRect(X, Y, PW, 630 - Y + 40); g.restore();
+    g.fillStyle = PINK; g.font = '800 40px ' + F; g.textAlign = 'left'; g.fillText('주문서', L, Y + 78);
+    g.font = '700 32px ' + F; g.textAlign = 'right'; g.fillText(no, R, Y + 78);
+    g.fillRect(L, Y + 98, R - L, 4);
+    var rows = r.lines.length <= 4 ? r.lines : r.lines.slice(0, 4), more = r.lines.length - rows.length, y = Y + 104;
+    rows.forEach(function (l) {
+      g.fillStyle = SUB; g.font = '600 36px ' + F; g.textAlign = 'right'; g.fillText(l.price, R, y + 52);
+      var pw = g.measureText(l.price).width;
+      g.fillStyle = INK; g.font = '700 38px ' + F; g.textAlign = 'left';
+      var name = l.name; while (g.measureText(name).width > R - L - pw - 28 && name.length > 2) name = name.slice(0, -1); if (name !== l.name) name += '…';
+      g.fillText(name, L, y + 52); y += 60;
     });
-    if (more > 0) { g.fillStyle = '#6E6A73'; g.font = '600 30px ' + F; g.fillText('외 ' + more + '개', L, y0 + rows.length * RH + 44); }
-    var dy = y0 + k * RH + GAP;
-    g.fillStyle = '#231B18'; g.fillRect(L, dy, R - L, 4);
-    var ty = dy + 4 + 62;
-    g.font = '600 34px ' + F; g.fillText('합계', L, ty);
-    g.fillStyle = '#E5007A'; g.font = '600 58px ' + F; g.textAlign = 'right'; g.fillText(r.total.toLocaleString('ko-KR') + '원', R, ty); g.textAlign = 'left';
+    if (more > 0) { g.fillStyle = SUB; g.font = '600 32px ' + F; g.textAlign = 'left'; g.fillText('외 ' + more + '개', L, y + 40); }
+    var ty = 548;
+    g.fillStyle = '#E8DDE2'; g.fillRect(L, ty - 66, R - L, 3);
+    g.fillStyle = INK; g.font = '700 36px ' + F; g.textAlign = 'left'; g.fillText('합계', L, ty);
+    g.fillStyle = PINK; g.font = '800 62px ' + F; g.textAlign = 'right'; g.fillText(r.total.toLocaleString('ko-KR') + '원', R, ty + 4); g.textAlign = 'left';
     return toBlob(c);
   });
 }
@@ -1359,6 +1374,9 @@ function maybeMakeSave() {
 // 결제 완료 화면이 뜨면 미리 썸네일을 그려 서버에 올려 둔다(공유 버튼을 누를 땐 이미 준비돼 있게)
 var RECIPE_UP = {};
 window.yjPrepRecipe = function (r) {
+  return orderReady().then(function (n) { r.n = n || comp.state.orderNo || 0; return prepRecipe(r); });
+};
+function prepRecipe(r) {
   var code = recipeCode(r);
   if (RECIPE_UP[code]) return RECIPE_UP[code];
   RECIPE_UP[code] = new Promise(function (ok) { setTimeout(ok, 700); })   // 영수증 애니메이션이 자리 잡은 뒤
@@ -1371,11 +1389,12 @@ window.yjPrepRecipe = function (r) {
     })
     .catch(function () { return false; });
   return RECIPE_UP[code];
-};
+}
 // 이미지 파일은 따로 보내지 않고 링크만 보낸다(썸네일은 링크 미리보기로 보임)
 window.yjShareRecipe = function (r) {
+  r.n = comp.state.orderNo || 0;
   var url = recipeUrl(r);
-  window.yjPrepRecipe(r);
+  prepRecipe(r);
   if (navigator.share) return navigator.share({ title: '요거트 아이스크림 만들기', url: url }).then(function () { sendEvent('Share Completed', { from: 'recipe', method: 'native' }); }, function () {});
   copyText(url).then(function () { yjToast('레시피 링크를 복사했어요'); sendEvent('Share Completed', { from: 'recipe', method: 'copy' }); }, function () { yjToast('링크: ' + url); });
 };
@@ -1400,7 +1419,11 @@ function trackView() {
   sendEvent('Step Viewed', { step: key, since_order_ms: VIEW.orderStart ? now - VIEW.orderStart : null });
   VIEW.key = key; VIEW.since = now;
 }
-var _tv = trackView; trackView = function () { _tv(); maybeMakeSave(); };
+var _tv = trackView; trackView = function () {
+  var s = comp.state;
+  if ((s.paying || s.paid) && !s.sharedView) orderReady(); else if (!s.paying && !s.paid) _orderReq = null;
+  _tv(); maybeMakeSave();
+};
 document.addEventListener('visibilitychange', function () {
   if (document.visibilityState === 'hidden' && comp) sendEvent('Session Hidden', { step: VIEW.key, in_step_ms: Date.now() - VIEW.since, toppings: comp.state.pieces.length }, true);
 });
