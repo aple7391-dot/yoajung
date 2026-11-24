@@ -12,7 +12,7 @@ module.exports = async (req, res) => {
   const code = String((req.query && req.query.c) || '');
   if (!CODE_RE.test(code)) { res.statusCode = 302; res.setHeader('Location', SITE + '/'); return res.end(); }
   let image = null;
-  if (process.env.BLOB_READ_WRITE_TOKEN) {
+  if (process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID) {
     const found = await head(pathFor(code)).catch(() => null);
     if (found) image = found.url;
   }

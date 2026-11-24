@@ -21,7 +21,7 @@ async function readCount() {
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).json({ ok: false });
-  if (!process.env.BLOB_READ_WRITE_TOKEN) return res.status(503).json({ ok: false, reason: 'no-blob' });
+  if (!(process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID)) return res.status(503).json({ ok: false, reason: 'no-blob' });
   const ip = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() || 'unknown';
   if (limited(ip)) return res.status(429).json({ ok: false });
   for (let i = 0; i < 8; i++) {

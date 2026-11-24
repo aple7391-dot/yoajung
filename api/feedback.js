@@ -12,7 +12,7 @@ function limited(ip) {
 const LABEL = { ingredient: '재료 추가 요청', message: '한마디' };
 
 module.exports = async (req, res) => {
-  const env = { FEEDBACK_TO: !!process.env.FEEDBACK_TO, SMTP_USER: !!process.env.SMTP_USER, SMTP_PASS: !!process.env.SMTP_PASS };
+  const env = { FEEDBACK_TO: !!process.env.FEEDBACK_TO, SMTP_USER: !!process.env.SMTP_USER, SMTP_PASS: !!process.env.SMTP_PASS, BLOB_READ_WRITE_TOKEN: !!process.env.BLOB_READ_WRITE_TOKEN, BLOB_STORE_ID: !!process.env.BLOB_STORE_ID };
   if (req.method === 'GET') return res.status(200).json({ ok: env.FEEDBACK_TO && env.SMTP_USER && env.SMTP_PASS, env });
   if (req.method !== 'POST') return res.status(405).json({ ok: false });
 

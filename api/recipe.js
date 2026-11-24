@@ -19,7 +19,7 @@ function pathFor(code) { return 'recipes/' + crypto.createHash('sha256').update(
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).json({ ok: false });
-  if (!process.env.BLOB_READ_WRITE_TOKEN) return res.status(503).json({ ok: false, reason: 'no-blob' });
+  if (!(process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID)) return res.status(503).json({ ok: false, reason: 'no-blob' });
   const code = String((req.query && req.query.c) || '');
   if (!CODE_RE.test(code)) return res.status(400).json({ ok: false });
   const pathname = pathFor(code);
