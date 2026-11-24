@@ -15,7 +15,9 @@ function readBody(req) {
     req.on('error', no);
   });
 }
-function pathFor(code) { return 'recipes/' + crypto.createHash('sha256').update(code).digest('hex').slice(0, 24) + '.png'; }
+// 저장소가 비공개라 썸네일은 /og/<키> (api/og.js)로 내보낸다
+function keyFor(code) { return crypto.createHash('sha256').update(code).digest('hex').slice(0, 24); }
+function pathFor(code) { return 'recipes/' + keyFor(code) + '.png'; }
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).json({ ok: false });
@@ -25,16 +27,17 @@ module.exports = async (req, res) => {
   const pathname = pathFor(code);
   try {
     const found = await head(pathname).catch(() => null);
-    if (found) return res.status(200).json({ ok: true, url: found.url, cached: true });
+    if (found) return res.status(200).json({ ok: true, cached: true });
     const buf = await readBody(req);
     const png = buf.length > 8 && buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4e && buf[3] === 0x47;
     if (!png) return res.status(400).json({ ok: false });
-    const blob = await put(pathname, buf, { access: 'public', contentType: 'image/png', addRandomSuffix: false, cacheControlMaxAge: 31536000 });
-    return res.status(200).json({ ok: true, url: blob.url });
+    const blob = await put(pathname, buf, { access: 'private', contentType: 'image/png', addRandomSuffix: false, cacheControlMaxAge: 31536000 });
+    return res.status(200).json({ ok: true });
   } catch (e) {
     console.error('recipe blob error', e && e.message);
-    return res.status(500).json({ ok: false, reason: String((e && e.name) || '') + ': ' + String((e && e.message) || '').slice(0, 160) });
+    return res.status(500).json({ ok: false });
   }
 };
 module.exports.pathFor = pathFor;
+module.exports.keyFor = keyFor;
 module.exports.CODE_RE = CODE_RE;

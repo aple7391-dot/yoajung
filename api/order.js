@@ -12,7 +12,7 @@ function limited(ip) {
   return list.length > 20;
 }
 async function readCount() {
-  const r = await get(PATH, { access: 'public', useCache: false }).catch(() => null);
+  const r = await get(PATH, { access: 'private', useCache: false }).catch(() => null);
   if (!r || r.statusCode !== 200) return { n: 0, etag: null };
   const text = await new Response(r.stream).text();
   let n = 0; try { n = Math.max(0, parseInt(JSON.parse(text).n, 10) || 0); } catch (e) {}
@@ -28,7 +28,7 @@ module.exports = async (req, res) => {
     try {
       const cur = await readCount();
       const next = cur.n + 1;
-      const opts = { access: 'public', contentType: 'application/json', addRandomSuffix: false, cacheControlMaxAge: 60 };
+      const opts = { access: 'private', contentType: 'application/json', addRandomSuffix: false, cacheControlMaxAge: 60 };
       if (cur.etag) { opts.allowOverwrite = true; opts.ifMatch = cur.etag; } else { opts.allowOverwrite = false; }
       await put(PATH, JSON.stringify({ n: next }), opts);
       res.setHeader('Cache-Control', 'no-store');

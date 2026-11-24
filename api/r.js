@@ -2,7 +2,7 @@
 // 카카오톡·인스타 같은 미리보기 봇에는 그 레시피 썸네일을 OG 이미지로 주고,
 // 사람은 바로 /?r=<코드> 레시피 화면으로 넘어간다.
 const { head } = require('@vercel/blob');
-const { pathFor, CODE_RE } = require('./recipe');
+const { pathFor, keyFor, CODE_RE } = require('./recipe');
 
 const SITE = 'https://yoajung-ten.vercel.app';
 const TITLE = '요거트 아이스크림 만들기';
@@ -14,7 +14,7 @@ module.exports = async (req, res) => {
   let image = null;
   if (process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID) {
     const found = await head(pathFor(code)).catch(() => null);
-    if (found) image = found.url;
+    if (found) image = SITE + '/og/' + keyFor(code);
   }
   const target = '/?r=' + code;
   const og = image || SITE + '/og.png';
