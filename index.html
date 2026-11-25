@@ -317,7 +317,7 @@ a{color:#231B18}a:hover{color:#E5007A}
     </sc-if>
     <sc-if value="{{sharedView}}">
       <div style="position: absolute; left: 20px; top: {{ctaTop}}px; width: 353px;">
-        <button onClick="{{restart}}" style="width: 100%; height: 48px; border-radius: 999px; background: var(--color-action-primary); color: #FFFFFF; font-size: 16px; line-height: 24px; font-weight: 700;">나도 만들어보기</button>
+        <button onClick="{{makeMine}}" style="width: 100%; height: 48px; border-radius: 999px; background: var(--color-action-primary); color: #FFFFFF; font-size: 16px; line-height: 24px; font-weight: 700;">나도 만들어보기</button>
       </div>
     </sc-if>
 
@@ -382,15 +382,15 @@ a{color:#231B18}a:hover{color:#E5007A}
             <span style="font-size: 11px; line-height: 14px; font-weight: 600; color: rgba(255,255,255,0.85);">많이</span>
           </div>
         </div>
-      <div class="yj-paid-bottom yj-up" style="visibility: {{fbRowVis}}; position: absolute; left: 16px; top: 512px; width: 361px; height: 44px; display: flex; align-items: center; justify-content: center; gap: 10px; animation-delay: 1.1s;">
-        <span style="font-size: 16px; line-height: 22px; font-weight: 800; color: #FFFFFF;">{{fbText}}</span>
+      <div class="yj-paid-bottom yj-up" style="visibility: {{fbRowVis}}; position: absolute; left: 16px; top: {{fbTop}}px; width: 361px; height: {{fbH}}px; display: flex; flex-wrap: wrap; align-items: center; align-content: center; justify-content: center; column-gap: 10px; row-gap: 8px; animation-delay: 1.1s;">
+        <span style="flex-basis: {{fbTextBasis}}; text-align: center; font-size: 16px; line-height: 22px; font-weight: 800; color: #FFFFFF;">{{fbText}}</span>
         <sc-if value="{{fbAsk}}">
           <button onClick="{{voteUp}}" aria-label="좋았어요" style="width: 40px; height: 40px; border-radius: 999px; background: #FFFFFF; color: var(--color-accent); display: flex; align-items: center; justify-content: center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 11v9H4v-9h3zM7 11l4-8c1.7 0 2.5 1.2 2.2 2.8L12.6 9H18a2 2 0 0 1 2 2.3l-1.2 6.4A2 2 0 0 1 16.8 20H7"></path></svg></button>
           <button onClick="{{voteDown}}" aria-label="아쉬웠어요" style="width: 40px; height: 40px; border-radius: 999px; background: #FFFFFF; color: var(--color-text-secondary); display: flex; align-items: center; justify-content: center;"><svg style="transform: rotate(180deg);" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 11v9H4v-9h3zM7 11l4-8c1.7 0 2.5 1.2 2.2 2.8L12.6 9H18a2 2 0 0 1 2 2.3l-1.2 6.4A2 2 0 0 1 16.8 20H7"></path></svg></button>
         </sc-if>
         <sc-if value="{{fbChoices}}">
           <button onClick="{{askIngredient}}" style="height: 32px; padding: 0 12px; border-radius: 999px; border: 1.5px solid rgba(255,255,255,0.8); color: #FFFFFF; font-size: 13px; line-height: 18px; font-weight: 700;">재료 추가해주세요</button>
-          <button onClick="{{askMessage}}" style="height: 32px; padding: 0 12px; border-radius: 999px; border: 1.5px solid rgba(255,255,255,0.8); color: #FFFFFF; font-size: 13px; line-height: 18px; font-weight: 700;">직접 얘기할래요</button>
+          <button onClick="{{askMessage}}" style="height: 32px; padding: 0 12px; border-radius: 999px; border: 1.5px solid rgba(255,255,255,0.8); color: #FFFFFF; font-size: 13px; line-height: 18px; font-weight: 700;">뭐가 더 필요해요</button>
         </sc-if>
       </div>
       <button class="yj-paid-bottom yj-up" onClick="{{shareRecipe}}" style="position: absolute; left: 33px; top: 568px; width: 327px; height: 52px; border-radius: 999px; background: var(--color-text-primary); color: #FFFFFF; font-size: 16px; line-height: 24px; font-weight: 700; animation-delay: 1.2s;">레시피 공유</button>
@@ -1124,14 +1124,14 @@ class Component extends DCLogic {
       var text = (self.formText || '').trim();
       if (!text) { self.flashToast(type === 'ingredient' ? '재료 이름을 적어주세요' : '하고 싶은 말을 적어주세요'); return; }
       self.setState({ modal: null });
-      track(type === 'ingredient' ? '피드백 · 재료 추가 요청 보냄' : '피드백 · 직접 의견 보냄', { '글자 수': text.length });
+      track(type === 'ingredient' ? '피드백 · 재료 추가 요청 보냄' : '피드백 · 뭐가 더 필요해요 보냄', { '글자 수': text.length });
       var body = { type: type, text: text, order: { size: s.size, shell: s.shell, syrup: s.syrup, toppings: s.pieces } };
       var done = function (ok) { self.formText = ''; self.setState({ fbShow: true, fbDone: true, fbMsg: ok ? '전달했어요, 고마워요!' : '지금은 보내지 못했어요' }); };
       try { fetch('/api/feedback', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }).then(function (r) { done(r.ok); }, function () { done(false); }); } catch (e) { done(false); }
     };
     if (s.modal === 'ingredient' || s.modal === 'message') {
       var ing = s.modal === 'ingredient';
-      modal = { title: ing ? '뭔가 부족했나요?' : '직접 얘기할래요', body: ing ? '있었으면 하는 재료를 알려주세요.' : '좋았던 점, 불편했던 점 무엇이든 괜찮아요.', hasBody: true, isSize: false, isForm: true, hasPrimary: true,
+      modal = { title: ing ? '뭔가 부족했나요?' : '뭐가 더 필요해요?', body: ing ? '있었으면 하는 재료를 알려주세요.' : '좋았던 점, 불편했던 점 무엇이든 괜찮아요.', hasBody: true, isSize: false, isForm: true, hasPrimary: true,
         placeholder: ing ? '예) 피스타치오 시럽' : '여기에 적어주세요', boxH: ing ? 52 : 120,
         onText: function (e) { self.formText = e.target.value; },
         secondaryLabel: '닫기', primaryLabel: ing ? '재료 추가' : '보내기', secondary: close, primary: function () { sendForm(s.modal); } };
@@ -1217,18 +1217,21 @@ class Component extends DCLogic {
       startOrder: function () { if (s.introOut) return; soundStart(); self.setState({ introOut: true, entering: true, step: 1 }); track('주문 시작 클릭', {}); setTimeout(function () { self.setState({ intro: false, introOut: false }); }, 620); setTimeout(function () { self.setState({ entering: false }); }, 1300); },
       rootCls: s.entering ? 'entering' : '',
       soundOn: s.soundOn !== false, soundOff: s.soundOn === false, soundPressed: s.soundOn !== false ? 'true' : 'false', soundLabel: s.soundOn !== false ? '소리 끄기' : '소리 켜기',
-      toggleSound: function () { var on = s.soundOn === false; SND.on = on; self.setState({ soundOn: on }); },
+      toggleSound: function () { var on = s.soundOn === false; track(on ? '소리 켜기' : '소리 끄기', {}); SND.on = on; self.setState({ soundOn: on }); },
       formText: self.formText || '',
       fbShow: !!s.paid && !!s.fbShow, fbChoices: !!s.paid && !!s.voted && !(s.upvoted && !s.rating),
       rateDisp: (s.paid && s.upvoted && !s.rating) ? 'flex' : 'none', fbRowVis: (s.paid && s.upvoted && !s.rating) ? 'hidden' : 'visible',
-      rateBtns: [1, 2, 3, 4, 5].map(function (n) { return { n: n, label: n + '점', pick: function () { track('피드백 · 구매 도움 점수', { '점수': n }); self.setState({ rating: n, fbMsg: '고마워요!' }); } }; }), fbAsk: !s.fbDone, fbText: s.fbDone ? (s.fbMsg || '고마워요!') : '어땠어요?',
+      rateBtns: [1, 2, 3, 4, 5].map(function (n) { return { n: n, label: n + '점', pick: function () { track('피드백 · 구매 도움 점수', { '점수': n }); self.setState({ rating: n, fbMsg: '' }); } }; }), fbAsk: !s.fbDone, fbText: s.fbDone ? (s.fbMsg || '의견 고마워요!') : '어땠어요?',
+      fbTop: (s.paid && s.voted && !(s.upvoted && !s.rating) && !s.fbMsg) ? 494 : 512, fbH: (s.paid && s.voted && !(s.upvoted && !s.rating) && !s.fbMsg) ? 66 : 44,
+      fbTextBasis: (s.paid && s.voted && !(s.upvoted && !s.rating) && !s.fbMsg) ? '100%' : 'auto',
       voteUp: function () { track('피드백 · 좋아요', {}); self.setState({ fbDone: true, voted: true, upvoted: true, rating: 0, fbMsg: '' }); },
       voteDown: function () { track('피드백 · 아쉬워요', {}); self.setState({ fbDone: true, voted: true, fbMsg: '' }); },
-      askIngredient: function () { self.formText = ''; self.setState({ modal: 'ingredient' }); },
-      askMessage: function () { self.formText = ''; self.setState({ modal: 'message' }); },
+      askIngredient: function () { track('피드백 · 재료 추가 버튼 클릭', {}); self.formText = ''; self.setState({ modal: 'ingredient' }); },
+      askMessage: function () { track('피드백 · 뭐가 더 필요해요 버튼 클릭', {}); self.formText = ''; self.setState({ modal: 'message' }); },
       saveImage: function () { track('이미지 저장 버튼 클릭', {}); if (window.yjSaveImage) window.yjSaveImage(); },
       shareRecipe: function () { track('레시피 공유 버튼 클릭', { '합계': total }); if (window.yjShareRecipe) window.yjShareRecipe({ size: s.size, shell: s.shell, syrup: s.syrup, pieces: s.pieces.slice(), total: total, lines: lines.map(fmt) }); },
       shareApp: function () { track('메인 공유 버튼 클릭', {}); if (window.yjShareApp) window.yjShareApp(); },
+      makeMine: function () { track('공유받은 레시피 · 나도 만들어보기 클릭', {}); self.goHome(); },
       restart: function () { self.goHome(); }
     };
   }
@@ -1586,13 +1589,19 @@ var _tv = trackView; trackView = function () {
   if ((s.paying || s.paid) && !s.sharedView) orderReady(); else if (!s.paying && !s.paid) _orderReq = null;
   _tv(); maybeMakeSave();
 };
-document.addEventListener('visibilitychange', function () {
-  if (document.visibilityState === 'hidden' && comp) sendEvent('이탈 · 화면 나감', { '마지막 화면': STEP_KO[VIEW.key] || VIEW.key, '머문 시간(초)': Math.round((Date.now() - VIEW.since) / 1000), '토핑 개수': comp.state.pieces.length }, true);
-});
+// 이탈: 탭 숨김(앱 전환·홈) + 페이지 닫힘(pagehide) 둘 다 보고, 한 번 나갈 때 한 번만
+var _leftSent = false;
+function sendLeave() {
+  if (_leftSent || !comp) return; _leftSent = true;
+  sendEvent('이탈 · 화면 나감', { '마지막 화면': STEP_KO[VIEW.key] || VIEW.key, '머문 시간(초)': Math.round((Date.now() - VIEW.since) / 1000), '토핑 개수': comp.state.pieces.length }, true);
+}
+document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') sendLeave(); else _leftSent = false; });
+window.addEventListener('pagehide', sendLeave);
+
 
 
 comp = new Component({});
-var __r = readRecipe(); if (__r) { Object.assign(comp.state, __r); yjTrack('Recipe Link Opened', { toppings: __r.pieces.length, size: __r.size }); }
+var __r = readRecipe(); if (__r) { Object.assign(comp.state, __r); yjTrack('레시피 링크로 들어옴', { '토핑 개수': __r.pieces.length, '사이즈': sizeKo(__r.size) }); }
 mount();
 // 화면 크기에 맞춰 393×716 프레임을 비율 그대로 키우고 가운데에
 function safeInsets() {                       // 아이폰 주소창·홈 표시줄이 덮는 영역
