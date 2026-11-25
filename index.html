@@ -209,7 +209,7 @@ a{color:#231B18}a:hover{color:#E5007A}
     </a>
   </sc-if>
 
-  <img src="assets/0e740bd281139dbe98c9130c198d1b06.webp" alt="" aria-hidden="true" draggable="false" class="yj-e-cloth {{clothOut}}" style="position: absolute; z-index: 1; left: 0; top: 150px; width: 393px; height: 313px; pointer-events: none;">
+  <img src="assets/0e740bd281139dbe98c9130c198d1b06.webp" alt="" aria-hidden="true" draggable="false" class="yj-e-cloth {{clothOut}}" style="position: absolute; z-index: 1; left: 0; top: 138px; width: 393px; height: 313px; pointer-events: none;">
   <sc-if value="{{preloadSyrup}}"><div aria-hidden="true" style="position: absolute; left: 0; top: 0; width: 1px; height: 1px; overflow: hidden; opacity: 0; pointer-events: none;"><img src="assets/8798c5f004598de8a951e7099d7f24d1.webp" alt=""><img src="assets/dee4de0c0be7a96638b7181389f08ffe.webp" alt=""><img src="assets/57afd883010e675547c33a4ed02c82bc.webp" alt=""><img src="assets/fbecc0f415a79ffa818deaa98843605f.webp" alt=""></div></sc-if>
   <sc-for list="{{sideCups}}" as="sc">
     <div aria-label="투명 컵에 따로 담긴 토핑" style="position: absolute; z-index: {{sc.z}}; left: {{sc.x}}px; top: {{sc.y}}px; width: 96px; height: 96px; transform-origin: 0 0; transform: {{sc.tf}}; transition: transform .8s cubic-bezier(.3,.7,.25,1);">
@@ -771,7 +771,7 @@ function scatter(list, inW) {
   list.forEach(function (t, k) {
     var span = spans[k];
     var size = Math.max(6, Math.round(inW * t.scale)), r = size / 2 / inW;
-    var rMax = Math.max(0.1, 0.44 - r * 0.85), rMin = n === 1 ? 0.02 : 0.05;
+    var rMax = Math.max(0.06, 0.42 - r * 1.15), rMin = n === 1 ? 0.02 : 0.05;
     var nc = Math.max(90, t.count * 5), cands = [];
     for (var i = 0; i < nc; i++) {
       var u = frac((i + 0.5) * GOLD + k * 0.37), v = frac((i + 0.5) / nc + k * 0.11);
@@ -876,7 +876,7 @@ class Component extends DCLogic {
     var cupW = c.dw;
     var cupH = Math.round(cupW * c.h / c.w);
     var side = placeAll(this.state.pieces, c).over.length > 0 ? 20 : 0;
-    return { c: c, cupW: cupW, cupH: cupH, cupL: Math.round(196 - cupW / 2) + side, cupT: Math.round(300 - cupH / 2) - side,
+    return { c: c, cupW: cupW, cupH: cupH, cupL: Math.round(196 - cupW / 2) + side, cupT: Math.round(288 - cupH / 2) - side,
       inL: Math.round(cupW * c.inner[0] / 100), inT: Math.round(cupH * c.inner[1] / 100),
       inW: Math.round(cupW * c.inner[2] / 100), inH: Math.round(cupH * c.inner[3] / 100) };
   }
@@ -1066,7 +1066,7 @@ class Component extends DCLogic {
     });
     // 순서는 담은 순서 그대로(조각이 자리만 비키고 다른 조각으로 바뀌지 않게). 큰 조각 아래·작은 조각 위는 z-index로.
     // 넘친 토핑: 투명 컵 하나에 3종씩, 차면 컵을 하나 더 놓음
-    var SIDE_POS = [[51, 352], [14, 268], [300, 330]];   // 레퍼런스 위치: 첫째 왼쪽 아래(빨강), 둘째 그 위(파랑), 셋째 오른쪽. 80px로 보이게
+    var SIDE_POS = [[51, 340], [14, 256], [300, 318]];   // 레퍼런스 위치: 첫째 왼쪽 아래(빨강), 둘째 그 위(파랑), 셋째 오른쪽. 80px로 보이게
     var SIDE_END = [[114.5, 138.5], [56, 95.5], [263, 75.5]];    // 마지막 화면: 접시 왼쪽 아래(첫째 빨강 자리), 그 위 왼쪽(둘째 파랑 자리), 아이스크림에 붙여서
     var sideCups = [];
     plan.over.forEach(function (idx, k) {
@@ -1163,7 +1163,7 @@ class Component extends DCLogic {
     return {
       askCancel: function () { self.setState({ modal: 'cancel' }); },
       bars: bars, stepText: s.paid ? '완료' : (s.step - 1) + ' / 4', progressLabel: s.paid ? '모든 단계 완료' : '4단계 중 ' + (s.step - 1) + '단계',
-      title: TITLES[s.step], titleTop: 90, titleIs: { s1: s.step === 1, s2: s.step === 2 && !s.sharedView, s3: s.step === 3, s4: s.step === 4 && !s.sharedView, s5: s.step === 5, sv: !!s.sharedView },
+      title: TITLES[s.step], titleTop: 78, titleIs: { s1: s.step === 1, s2: s.step === 2 && !s.sharedView, s3: s.step === 3, s4: s.step === 4 && !s.sharedView, s5: s.step === 5, sv: !!s.sharedView },
       canReset: s.step >= 2 && s.step <= 4 && !s.sharedView && this.hasSelection(s.step),
       reset: function () { self.setState(self.clearStep(s.step)); },
       showSlip: !s.paid && s.step !== 5 && !s.sharedView, lineCount: lines.length + '개', slip: slip, slipMore: lines.length > 3, slipMoreText: '외 ' + (lines.length - 3) + '개', totalText: won(total) + '원',
@@ -1362,13 +1362,13 @@ function doilyImg() {
   _doilyImg = loadImg('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg));
   return _doilyImg;
 }
-function drawPlate(g, cx, cy, size) {        // 레이스 접시 + 그 위 컵
+function drawPlate(g, cx, cy, size, cup) {   // 레이스 접시 + 그 위 컵 (cup: {cx, cy, w}로 컵 위치·크기를 따로 줄 수 있음)
   var data = cupItems(); if (!data) return Promise.resolve();
   return Promise.all([doilyImg()].concat(data.items.map(function (it) { return loadImg(it.src); }))).then(function (imgs) {
     var d = imgs.shift();
     g.save(); g.shadowColor = 'rgba(35,27,24,0.16)'; g.shadowBlur = size * 0.05; g.shadowOffsetX = size * 0.015; g.shadowOffsetY = size * 0.03;
     if (d) g.drawImage(d, cx - size / 2, cy - size / 2, size, size); g.restore();
-    var cw = size * 0.63, S = cw / data.rect.width, ox = cx - cw / 2, oy = cy - (data.rect.height * S) / 2;
+    var ccx = cup ? cup.cx : cx, ccy = cup ? cup.cy : cy, cw = cup ? cup.w : size * 0.63, S = cw / data.rect.width, ox = ccx - cw / 2, oy = ccy - (data.rect.height * S) / 2;
     data.items.forEach(function (it, i) {
       var im = imgs[i]; if (!im) return;
       var w = it.w * S, h = it.h * S, x = ox + it.x * S, y = oy + it.y * S;
@@ -1434,9 +1434,9 @@ function composeRecipe(r) {
   var c = document.createElement('canvas'); c.width = 1200; c.height = 630; var g = c.getContext('2d');
   var n = r.n || comp.state.orderNo || 0, no = n ? 'No.' + String(n).padStart(4, '0') : '';
   paleGingham(g, 1200, 630);
-  var SIDE = sideItems().length;   // 미니 컵이 있으면 접시를 오른쪽으로 밀고 미니 컵은 왼쪽 아래
-  return drawPlate(g, SIDE ? 990 : 900, 315, 540).then(function () {
-    return drawSide(g, [{ cx: 807, cy: 519, s: 155 }, { cx: 728, cy: 365, s: 155 }, { cx: 1110, cy: 560, s: 140 }]);
+  // 배치는 캔버스 'OG 편집' 보드에서 사용자가 맞춘 값 (레이스 593, 아이스크림 401, 미니 컵 155)
+  return drawPlate(g, 991.5, 307.5, 593, { cx: 999.5, cy: 315, w: 401 }).then(function () {
+    return drawSide(g, [{ cx: 809.5, cy: 507.5, s: 155 }, { cx: 707.5, cy: 372.5, s: 155 }, { cx: 1120, cy: 92, s: 130 }]);
   }).then(function () {
     var F = '"Pretendard Variable", Pretendard, sans-serif', PINK = '#E5007A', INK = '#231B18', SUB = '#6E6A73';
     var X = 64, Y = 72, PW = 520, L = X + 44, R = X + PW - 44;
