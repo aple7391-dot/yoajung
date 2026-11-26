@@ -1584,8 +1584,12 @@ function trackView() {
     '주문 시작 후 시간(초)': VIEW.orderStart ? Math.round((now - VIEW.orderStart) / 1000) : 0, '토핑 개수': s.pieces.length });
   VIEW.key = key; VIEW.since = now;
 }
+// 화면 가장자리(상태바 아래 띠 등)가 지금 화면과 같은 색으로 보이게
+var _edgeBg = '';
+function edgeColor(s) { return s.paid ? '#E5007A' : s.intro ? '#FCE4EF' : '#ECE9E5'; }
 var _tv = trackView; trackView = function () {
-  var s = comp.state;
+  var s = comp.state, eb = edgeColor(s);
+  if (eb !== _edgeBg) { _edgeBg = eb; document.body.style.background = eb; var vp = document.getElementById('yj-viewport'); if (vp) vp.style.background = eb; }
   if ((s.paying || s.paid) && !s.sharedView) orderReady(); else if (!s.paying && !s.paid) _orderReq = null;
   _tv(); maybeMakeSave();
 };
@@ -1611,8 +1615,10 @@ function safeInsets() {                       // 아이폰 주소창·홈 표시
 }
 function fit() {
   var vv = window.visualViewport, W = window.innerWidth, H = Math.min(window.innerHeight, vv ? Math.round(vv.height) : 1e9), Fw = Math.min(W, 440);
-  var sa = safeInsets(), Hv = H - sa.t - sa.b;               // 실제로 보이는 높이 (잘리는 아래쪽 빼고)
-  var k = Math.min(1, Fw / 393, Hv / 716), lw = Fw / k, lh = (H - sa.t) / k, sb = sa.b / k;
+  var sa = safeInsets(); sa.t = Math.min(sa.t, 59);          // X 같은 앱 안 브라우저는 위 여백을 실제(상태바)보다 크게 알려줘서 상태바 높이까지만
+  var Hv = H - sa.t - sa.b;                                  // 실제로 보이는 높이 (잘리는 아래쪽 빼고)
+  // 너무 낮은 화면(앱 안 브라우저의 아래 카드 등)에서도 버튼이 작아지지 않게 82%까지만 줄이고, 모자란 높이는 바텀시트가 위로 덮음
+  var k = Math.min(1, Fw / 393, Math.max(Hv / 716, 0.82)), lw = Fw / k, lh = (H - sa.t) / k, sb = sa.b / k;
   var st = document.getElementById('yj-stage'), sc = document.getElementById('yj-scale');
   st.style.width = Fw + 'px'; st.style.height = (H - sa.t) + 'px'; st.style.marginTop = sa.t + 'px';
   sc.style.width = lw + 'px'; sc.style.height = lh + 'px'; sc.style.transform = 'scale(' + k + ')';
