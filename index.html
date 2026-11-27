@@ -63,6 +63,8 @@ a{color:#231B18}a:hover{color:#E5007A}
 .yj-still{animation:none}
 @keyframes yjPour{0%{transform:scale(.6) rotate(-14deg);opacity:0}60%{transform:scale(1.04) rotate(2deg);opacity:1}100%{transform:scale(1) rotate(0)}}
 .yj-pour{animation:yjPour .7s cubic-bezier(.3,.7,.3,1) both}
+/* 시럽은 컵 전체를 덮지 않고 위쪽 끝 3분의 1만: 30%까지 보이고 40%까지 자연스럽게 사라짐 (저장·공유 그림도 같은 값, web_shell SYRUP_MASK) */
+[id^=yj-drizzle-]{-webkit-mask-image:linear-gradient(to bottom,#000 30%,transparent 40%);mask-image:linear-gradient(to bottom,#000 30%,transparent 40%)}
 @keyframes yjLid{0%{transform:translate(-50%,-50%) translateY(-200px) scale(1.14);opacity:0}55%{opacity:1;transform:translate(-50%,-50%) translateY(6px) scale(.99)}75%{transform:translate(-50%,-50%) translateY(-3px)}100%{transform:translate(-50%,-50%)}}
 .yj-lid{position:absolute;transform:translate(-50%,-50%);animation:yjLid .6s cubic-bezier(.3,.7,.3,1) both}
 @keyframes yjSticker{0%{transform:translate(-50%,-50%) scale(1.7) rotate(-24deg);opacity:0}40%{opacity:1;transform:translate(-50%,-50%) scale(.84,.9) rotate(-6deg)}58%{transform:translate(-50%,-50%) scale(1.1,1.04) rotate(-9deg)}74%{transform:translate(-50%,-50%) scale(.96,1) rotate(-7deg)}88%{transform:translate(-50%,-50%) scale(1.02) rotate(-8deg)}100%{transform:translate(-50%,-50%) scale(1) rotate(-8deg)}}
@@ -1336,7 +1338,7 @@ function cupItems() {
     if (/yj-lid|yj-sticker/.test(im.className)) return;
     var btn = im.closest('.yj-piece'), box = (btn || im).getBoundingClientRect();
     var m = /rotate\((-?[\d.]+)deg\)/.exec(im.style.transform || '');
-    items.push({ src: im.currentSrc || im.src, x: box.left - cr.left, y: box.top - cr.top, w: box.width, h: box.height, rot: m ? +m[1] : 0, piece: !!btn,
+    items.push({ src: im.currentSrc || im.src, x: box.left - cr.left, y: box.top - cr.top, w: box.width, h: box.height, rot: m ? +m[1] : 0, piece: !!btn, syrup: /^yj-drizzle-/.test(im.id),
       z: btn ? 100 + (+btn.style.zIndex || 0) : (n++ < 2 ? n : 1000 + n) });
   });
   items.sort(function (a, b) { return a.z - b.z; });
@@ -1370,6 +1372,15 @@ function drawSide(g, spots) {
     });
   });
 }
+// 화면과 같게 시럽은 위쪽 3분의 1만 (CSS [id^=yj-drizzle-] 마스크와 같은 값)
+var SYRUP_MASK = [0.30, 0.40];
+function maskSyrup(im) {
+  var c = document.createElement('canvas'); c.width = im.naturalWidth; c.height = im.naturalHeight;
+  var g = c.getContext('2d'); g.drawImage(im, 0, 0);
+  var gr = g.createLinearGradient(0, 0, 0, c.height); gr.addColorStop(SYRUP_MASK[0], 'rgba(0,0,0,1)'); gr.addColorStop(SYRUP_MASK[1], 'rgba(0,0,0,0)');
+  g.globalCompositeOperation = 'destination-in'; g.fillStyle = gr; g.fillRect(0, 0, c.width, c.height);
+  return c;
+}
 var _doilyImg = null;
 function doilyImg() {
   if (_doilyImg) return _doilyImg;
@@ -1388,7 +1399,7 @@ function drawPlate(g, cx, cy, size, cup) {   // 레이스 접시 + 그 위 컵 (
       var im = imgs[i]; if (!im) return;
       var w = it.w * S, h = it.h * S, x = ox + it.x * S, y = oy + it.y * S;
       if (!it.piece) { var a = im.naturalWidth / im.naturalHeight, bw = w, bh = h; if (a > w / h) bh = w / a; else bw = h * a; x += (w - bw) / 2; y += (h - bh) / 2; w = bw; h = bh; }
-      g.save(); g.translate(x + w / 2, y + h / 2); g.rotate(it.rot * Math.PI / 180); g.drawImage(im, -w / 2, -h / 2, w, h); g.restore();
+      g.save(); g.translate(x + w / 2, y + h / 2); g.rotate(it.rot * Math.PI / 180); g.drawImage(it.syrup ? maskSyrup(im) : im, -w / 2, -h / 2, w, h); g.restore();
     });
   });
 }
