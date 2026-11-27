@@ -1652,8 +1652,10 @@ function safeInsets() {                       // 아이폰 주소창·홈 표시
 }
 function fit() {
   var vv = window.visualViewport, W = window.innerWidth, H = Math.min(window.innerHeight, vv ? Math.round(vv.height) : 1e9), Fw = Math.min(W, 440);
-  // 앱 안 브라우저(X 등)가 알려주는 위 여백은 상단 바가 페이지를 덮는 높이까지 포함한다. 줄이면 그만큼 위가 바 밑으로 들어가 잘리니 그대로 쓴다.
   var sa = safeInsets();
+  // X 앱 안 브라우저는 페이지가 이미 상태바 아래에서 시작하는데도 위 여백(54)을 또 알려준다(실측: 창 553 / 화면 852, 아래 툴바 위까지가 페이지).
+  // 그대로 쓰면 상태바 밑에 빈 띠가 한 번 더 생기고 그만큼 화면이 아래로 밀리니 X에서는 위 여백을 쓰지 않는다.
+  if (/Twitter/i.test(navigator.userAgent || '')) sa.t = 0;
   var Hv = H - sa.t - sa.b;                                  // 실제로 보이는 높이 (잘리는 아래쪽 빼고)
   // 너무 낮은 화면(앱 안 브라우저의 아래 카드 등)에서도 버튼이 작아지지 않게 82%까지만 줄이고, 모자란 높이는 바텀시트가 위로 덮음
   var k = Math.min(1, Fw / 393, Math.max(Hv / 716, 0.82)), lw = Fw / k, lh = (H - sa.t) / k, sb = sa.b / k;
