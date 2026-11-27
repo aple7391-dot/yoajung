@@ -1607,6 +1607,43 @@ window.addEventListener('pagehide', sendLeave);
 comp = new Component({});
 var __r = readRecipe(); if (__r) { Object.assign(comp.state, __r); yjTrack('레시피 링크로 들어옴', { '토핑 개수': __r.pieces.length, '사이즈': sizeKo(__r.size) }); }
 mount();
+// 첫 방문에도 애니메이션이 보이게: 그림이 화면에 나올 때 받기 시작하면 애니메이션이 끝난 뒤에야 떠서 그냥 툭 나타남.
+// 첫 화면이 뜬 뒤 다음 단계 그림을 흐름 순서대로 미리 받아 둔다(동시에 4장씩).
+var _pre = {}, _preQ = [], _preBusy = 0;
+function _prePump() {
+  while (_preBusy < 4 && _preQ.length) {
+    var u = _preQ.shift(); _pre[u] = 2; _preBusy++;
+    var im = new Image(); im.decoding = 'async';
+    im.onload = im.onerror = function () { _preBusy--; _prePump(); };
+    im.src = u;
+  }
+}
+window.yjPreload = function (urls, first) {
+  var add = [];
+  urls.forEach(function (u) {
+    if (!u || _pre[u] === 2) return;
+    if (_pre[u] === 1) { if (!first) return; _preQ.splice(_preQ.indexOf(u), 1); }
+    _pre[u] = 1; add.push(u);
+  });
+  if (first) _preQ = add.concat(_preQ); else _preQ = _preQ.concat(add);
+  _prePump();
+};
+function _preAll() {
+  var tpl = (document.getElementById('yj-template') || {}).textContent || '', list = [];
+  (tpl.match(/assets\/[0-9a-f]{32}\.(?:webp|png|svg)/g) || []).forEach(function (u) { list.push(u); });   // 화면에 바로 쓰는 그림(컵·쉘·시럽·뚜껑·영수증)
+  SHELLS.forEach(function (x) { list.push(x.btl); });
+  ORDER.forEach(function (id) { list.push(TOPPINGS[id].src); });                                           // 토핑 고르는 줄
+  ORDER.forEach(function (id) { TOPPINGS[id].pieces.forEach(function (u) { list.push(u); }); });           // 컵에 떨어지는 조각
+  SYRUPS.forEach(function (x) { list.push(x.btl); });
+  window.yjPreload(list);
+}
+// 토핑을 누르기 시작하면 그 토핑 조각을 맨 앞으로
+document.addEventListener('pointerdown', function (e) {
+  var b = e.target && e.target.closest && e.target.closest('[aria-pressed]'); if (!b) return;
+  var name = (b.getAttribute('aria-label') || '').replace(/ (담기|빼기)$/, '');
+  for (var i = 0; i < ORDER.length; i++) { var t = TOPPINGS[ORDER[i]]; if (t.name === name) { window.yjPreload(t.pieces, true); break; } }
+}, true);
+if (document.readyState === 'complete') setTimeout(_preAll, 300); else window.addEventListener('load', function () { setTimeout(_preAll, 300); });
 // 화면 크기에 맞춰 393×716 프레임을 비율 그대로 키우고 가운데에
 function safeInsets() {                       // 아이폰 주소창·홈 표시줄이 덮는 영역
   var p = document.getElementById('yj-safe');
@@ -1615,7 +1652,8 @@ function safeInsets() {                       // 아이폰 주소창·홈 표시
 }
 function fit() {
   var vv = window.visualViewport, W = window.innerWidth, H = Math.min(window.innerHeight, vv ? Math.round(vv.height) : 1e9), Fw = Math.min(W, 440);
-  var sa = safeInsets(); sa.t = Math.min(sa.t, 59);          // X 같은 앱 안 브라우저는 위 여백을 실제(상태바)보다 크게 알려줘서 상태바 높이까지만
+  // 앱 안 브라우저(X 등)가 알려주는 위 여백은 상단 바가 페이지를 덮는 높이까지 포함한다. 줄이면 그만큼 위가 바 밑으로 들어가 잘리니 그대로 쓴다.
+  var sa = safeInsets();
   var Hv = H - sa.t - sa.b;                                  // 실제로 보이는 높이 (잘리는 아래쪽 빼고)
   // 너무 낮은 화면(앱 안 브라우저의 아래 카드 등)에서도 버튼이 작아지지 않게 82%까지만 줄이고, 모자란 높이는 바텀시트가 위로 덮음
   var k = Math.min(1, Fw / 393, Math.max(Hv / 716, 0.82)), lw = Fw / k, lh = (H - sa.t) / k, sb = sa.b / k;
@@ -1628,6 +1666,14 @@ function fit() {
 window.addEventListener('resize', fit); window.addEventListener('orientationchange', function () { setTimeout(fit, 300); });
 if (window.visualViewport) visualViewport.addEventListener('resize', fit);
 fit(); setTimeout(fit, 400);
+// 앱 안 브라우저에서 화면이 잘리는지 원인을 보려고, 실제로 보이는 크기와 여백을 한 번 기록
+setTimeout(function () {
+  var ua = navigator.userAgent || '', app = /Twitter/i.test(ua) ? 'X' : /Instagram/i.test(ua) ? '인스타그램' : /KAKAOTALK/i.test(ua) ? '카카오톡' : /FBAN|FBAV/i.test(ua) ? '페이스북' : /Line\//i.test(ua) ? '라인' : '';
+  if (!app) return;
+  var vv = window.visualViewport, sa = safeInsets();
+  yjTrack('앱 안 브라우저 화면', { '앱': app, '창 높이': window.innerHeight, '창 너비': window.innerWidth, '보이는 높이': vv ? Math.round(vv.height) : null,
+    '보이는 위치': vv ? Math.round(vv.offsetTop) : null, '화면 높이': screen.height, '위 여백': sa.t, '아래 여백': sa.b, '배율': window.YJ_K });
+}, 1200);
 
 </script>
 </body>
